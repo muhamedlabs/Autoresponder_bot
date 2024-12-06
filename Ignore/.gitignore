@@ -4,5 +4,6 @@
 
 
 session_name.session
+session_name.session-journal
 Ignore/Auto_users.txt
 Ignore/config.py
