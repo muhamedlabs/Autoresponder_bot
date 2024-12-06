@@ -10,7 +10,7 @@ from commands.podcast import handle_podcast
 from commands.quotes import handle_quotes
 from commands.picture import handle_picture
 from commands.faq import handle_faq
-
+from commands.weevil import handle_weevil
 
 # Функция для обработки команд
 async def handle_command(client, chat_id, command):
@@ -33,7 +33,9 @@ async def handle_command(client, chat_id, command):
     elif command == "!картинка":
         await handle_picture(client, chat_id)
     elif command == "!чаво":
-        await handle_faq(client, chat_id)          
+        await handle_faq(client, chat_id)
+    elif command == "!тясицу":
+        await handle_weevil(client, chat_id)              
   
 
 
