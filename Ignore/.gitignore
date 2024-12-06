@@ -1,0 +1,8 @@
+**/__pycache__/
+.vscode
+
+
+
+session_name.session
+Ignore/Auto_users.txt
+Ignore/config.py
