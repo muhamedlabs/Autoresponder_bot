@@ -1,7 +1,7 @@
 import os
 from telethon import TelegramClient, events
 from commands.handler import handle_command  # Import command handler
-from Ignore.config import phone_number, api_hash, api_id # Import config
+from Ignore.config import phone_number, api_hash, api_id  # Import config
 
 # File for storing user data
 FILE_NAME = "Ignore/Auto_users.txt"
@@ -12,9 +12,13 @@ VIDEO_FILE = "Видео_материал/MAIN.mp4"  # Replace with your path
 # Function to load already processed users
 def load_replied_users():
     if not os.path.exists(FILE_NAME):
-        return set()
+        return {}
+    users = {}
     with open(FILE_NAME, "r", encoding="utf-8") as file:
-        users = set(line.split(",")[0].split(":")[1].strip() for line in file if line.strip())
+        for line in file:
+            parts = line.split(",")
+            user_id = parts[0].split(":")[1].strip()
+            users[user_id] = line.strip()
     return users
 
 # Function to save user data
@@ -29,6 +33,17 @@ def save_replied_user(user_id, username, first_name, last_name, phone, chat_id, 
             f"ID чата: {chat_id}, "
             f"Ссылка: {link}\n"
         )
+
+# Function to remove user from the list
+def remove_user_from_file(user_id):
+    if not os.path.exists(FILE_NAME):
+        return
+    with open(FILE_NAME, "r", encoding="utf-8") as file:
+        lines = file.readlines()
+    with open(FILE_NAME, "w", encoding="utf-8") as file:
+        for line in lines:
+            if f"ID пользователя: {user_id}" not in line:
+                file.write(line)
 
 # Create the client
 client = TelegramClient('session_name', api_id, api_hash)
@@ -49,9 +64,34 @@ async def handler(event):
 
     replied_users = load_replied_users()
 
-    if user_id not in replied_users:  # If the user is new
+    message_text = event.message.text.strip().lower()
+
+    if message_text == "!старт":
+        # Remove user from the list if exists
+        remove_user_from_file(user_id)
+
         # Send video or text
-        if os.path.exists(VIDEO_FILE):  # Check if the video exists
+        if os.path.exists(VIDEO_FILE):
+            await client.send_file(
+                chat_id,
+                VIDEO_FILE,
+                caption=(
+                    "👹 **Путь начинается, воин!** Это автоматическое сообщение, которое отправляется без покупки **Telegram Premium**. "
+                    "Мы больше не будем беспокоить вас, так что пишите, что хотите узнать или приобрести, чтобы не забрать друг у друга время.\n\n"
+                    "При использовании команд: `!инфо`, `!донат`, `!подарок`, `!боты` авто-ответчик обязательно ответит на ваш запрос.\n\n"
+                    "Также, вы можете посетить сайт **Андрея Мухамеда** для дополнительной информации: https://andremuhamed.pro"
+                ),
+            )
+        else:
+            await event.reply("The video file is missing, but we're here to assist you!")
+
+        # Save user data
+        save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
+        print(f"User data reset: ID {user_id}, Phone: {phone}, Name: {first_name} {last_name}, Username: {username}")
+
+    elif user_id not in replied_users:  # If the user is new
+        # Send video or text
+        if os.path.exists(VIDEO_FILE):
             await client.send_file(
                 chat_id,
                 VIDEO_FILE,
@@ -68,13 +108,13 @@ async def handler(event):
         # Save user data
         save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
         print(f"Saved user data: ID {user_id}, Phone: {phone}, Name: {first_name} {last_name}, Username: {username}")
+
     else:
         print(f"Message from user ID {user_id} skipped: already processed.")
 
     # Process commands
-    message_text = event.message.text.strip()
     if message_text.startswith("!"):
-        await handle_command(client, chat_id, message_text.lower())
+        await handle_command(client, chat_id, message_text)
 
 async def main():
     # Attempt to connect to Telegram
