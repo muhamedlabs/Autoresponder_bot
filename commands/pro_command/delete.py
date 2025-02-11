@@ -1,10 +1,12 @@
 from telethon import events
 import asyncio
 
-def register_auto_delete(client, user_id):
-    """Регистрирует авто-удаление сообщений с определёнными словами."""
+FORBIDDEN_WORDS = ["утро", "ночь", "работа"]
+
+def register_auto_delete(client):
+    """Регистрирует авто-удаление сообщений бота у себя и у пользователей."""
     
-    @client.on(events.NewMessage(outgoing=True))  # Удаляем только исходящие сообщения
+    @client.on(events.NewMessage(outgoing=True))  # Удаляем только свои сообщения
     async def auto_delete_handler(event):
         if not event.message.text:
             return  # Игнорируем пустые сообщения
@@ -12,13 +14,12 @@ def register_auto_delete(client, user_id):
         text = event.message.text.lower()
 
         # Проверяем, содержит ли сообщение запрещённые слова
-        if any(word in text for word in ["утро", "ночь", "работа"]):
+        if any(word in text for word in FORBIDDEN_WORDS):
             await asyncio.sleep(15)  # Ждём 15 секунд
             
             try:
-                await client.delete_messages(event.chat_id, event.message.id)
-                print(f"Удалено сообщение от {user_id}: {text}")
+                # Удаляем сообщение у всех, если это возможно
+                await client.delete_messages(event.chat_id, event.message.id, revoke=True)
+                print(f"Удалено сообщение в чате {event.chat_id}: {text}")
             except Exception as e:
                 print(f"Ошибка удаления: {e}")
-
-
