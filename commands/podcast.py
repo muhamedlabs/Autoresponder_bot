@@ -4,7 +4,7 @@ import random
 async def handle_podcast(client, chat_id):
     """Обработчик команды подкаста с отправкой случайного аудиофайла."""
     # Путь к папке с подкастами
-    audio_folder = "podcast"
+    audio_folder = "Подкаст_музика"
     
     # Получаем список файлов с расширением .ogg
     audio_files = [f for f in os.listdir(audio_folder) if f.endswith(".ogg")]

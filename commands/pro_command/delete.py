@@ -15,7 +15,7 @@ def register_auto_delete(client):
 
         # Проверяем, содержит ли сообщение запрещённые слова
         if any(word in text for word in FORBIDDEN_WORDS):
-            await asyncio.sleep(15)  # Ждём 15 секунд
+            await asyncio.sleep(30)  # Ждём 30 секунд
             
             try:
                 # Удаляем сообщение у всех, если это возможно
