@@ -1,7 +1,7 @@
 from telethon import events
 import asyncio
 
-FORBIDDEN_WORDS = ["утро", "ночь", "работа"]
+FORBIDDEN_WORDS = ["утро", "ночь", "работа", "тираж"]
 
 def register_auto_delete(client):
     """Регистрирует авто-удаление сообщений бота у себя и у пользователей."""
@@ -20,6 +20,6 @@ def register_auto_delete(client):
             try:
                 # Удаляем сообщение у всех, если это возможно
                 await client.delete_messages(event.chat_id, event.message.id, revoke=True)
-                print(f"Удалено сообщение в чате {event.chat_id}: {text}")
+                print(f"Chat message deleted {event.chat_id}: {text}")
             except Exception as e:
                 print(f"Ошибка удаления: {e}")
