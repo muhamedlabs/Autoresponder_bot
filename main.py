@@ -4,7 +4,8 @@ from telethon import TelegramClient, events
 from commands.handler import handle_command
 from Ignore.config import phone_number, api_hash, api_id
 from commands.pro_command.delete import register_auto_delete  # Импорт авто-удаления
-from commands.pro_command.answers.auto_loader import load_auto_responses
+from commands.pro_command.comment import register_comment_handler # Импорт коментов
+from commands.pro_command.answers.auto_loader import load_auto_responses # Импорт авто-ответ
 
 # Файл для хранения данных пользователей
 FILE_NAME = "Ignore/Auto_users.txt"
@@ -17,6 +18,9 @@ client = TelegramClient('session_name', api_id, api_hash)
 
 # Подключаем авто-удаление
 register_auto_delete(client)
+
+# Подключение комментариев
+register_comment_handler(client)
 
 # Загружаем автоответы
 load_auto_responses(client)
