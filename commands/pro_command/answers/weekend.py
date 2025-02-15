@@ -1,5 +1,6 @@
 import os
 import random
+import re
 from telethon import events
 
 # Путь к гифке
@@ -19,21 +20,25 @@ WEEKEND_MESSAGES = [
 ]  
 
 def register_auto_reply(client):
-    """Регистрирует автоответ на слово 'виходной'."""
+    """Регистрирует автоответ на слово 'ВиходнойPro' с точным совпадением регистра."""
 
     @client.on(events.NewMessage(outgoing=True))
     async def weekend_reply(event):
-        if "виходной" in event.message.text.lower():
-            # Проверяем, что сообщение в личке
+        # Проверяем точное написание "ВиходнойPro"
+        if re.fullmatch(r"ВиходнойPro", event.message.text):
+            
+            # Проверяем, что сообщение **не** в группе и **не** в канале
             if event.is_group or event.is_channel:
-                return  # В группах не реагируем
+                print("Игнорируем сообщение в группе/канале")
+                return  
 
             random_text = random.choice(WEEKEND_MESSAGES)
 
+            # Проверяем наличие файла
             if not os.path.exists(GIF_PATH):
-                print(f"Ошибка: Файл гифки '{GIF_PATH}' не найден!")
+                print(f"Ошибка: Файл '{GIF_PATH}' не найден!")
                 await event.respond(random_text)
                 return
 
             await event.client.send_file(event.chat_id, GIF_PATH, caption=random_text)
-            print(f"Sent a gif with a text for the weekend.")
+            print(f"Sent to {event.chat_id}: gif + text")

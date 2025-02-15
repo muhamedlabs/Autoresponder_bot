@@ -20,7 +20,7 @@ WIN_MESSAGES = [
     "**Ты в центре внимания, Ронин! 🏅**\n\nТвой выигрыш — бесплатная реклама на наших проектах! 💪 Не упусти возможность, у тебя 24 часа, чтобы откликнуться! 🚀\n\nКстати, не забудь посетить наш сайт: https://muhamedlabs.pro",  
 ]  
 
-# Функция загрузки списка чатов из файла (извлекаем только ID чатов)
+# Функция загрузки списка чатов из файла
 def load_chat_ids():
     if not os.path.exists(CHAT_FILE):
         print(f"Ошибка: Файл '{CHAT_FILE}' не найден!")
@@ -29,7 +29,7 @@ def load_chat_ids():
     with open(CHAT_FILE, "r", encoding="utf-8") as file:
         content = file.read()
 
-    chat_ids = re.findall(r"ID чата: (\d+)", content)  # Регулярка для поиска ID
+    chat_ids = re.findall(r"ID чата: (\d+)", content)  # Извлекаем ID чатов
     return list(map(int, chat_ids))  # Преобразуем в список чисел
 
 async def send_winner_messages(client):
@@ -53,14 +53,14 @@ async def send_winner_messages(client):
     for chat_id in selected_chats:
         random_text = random.choice(WIN_MESSAGES)  # Выбираем случайное поздравление
         await client.send_file(chat_id, GIF_PATH, caption=random_text)
-        print(f"Sent to chat {chat_id} with a hyphy")
+        print(f"Sent to the chat room: {chat_id}")
 
 def register_auto_reply(client):
-    """Регистрирует триггер на слово 'тираж'."""
+    """Регистрирует триггер на слово 'ТиражPro' с учётом регистра."""
     
     @client.on(events.NewMessage(outgoing=True))
     async def check_raffle_trigger(event):
-        """Запускает розыгрыш, если бот отправляет слово 'тираж'."""
-        if "тираж" in event.message.text.lower():
+        """Запускает розыгрыш, если бот отправляет именно 'ТиражPro' (с учётом регистра)."""
+        if "ТиражPro" in event.message.text:  # Теперь учитывается регистр
             print("Launch the raffle!")
             await send_winner_messages(client)

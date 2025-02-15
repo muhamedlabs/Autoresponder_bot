@@ -30,7 +30,12 @@ def load_chat_ids():
         content = file.read()
 
     chat_ids = re.findall(r"ID чата: (\d+)", content)  # Регулярка для поиска ID
-    return list(map(int, chat_ids))  # Преобразуем в список чисел
+    chat_ids = list(map(int, chat_ids))  # Преобразуем в список чисел
+
+    if not chat_ids:
+        print(f"Внимание: Файл '{CHAT_FILE}' пуст, ID не найдены!")
+    
+    return chat_ids
 
 async def send_welcome_message(client):
     """Отправляет сообщение только 1 случайному участнику."""
@@ -48,14 +53,14 @@ async def send_welcome_message(client):
 
     welcome_text = random.choice(WELCOME_MESSAGES)  # Выбираем случайное приветствие
     await client.send_file(selected_chat, GIF_PATH, caption=welcome_text)
-    print(f"Sent to {selected_chat} chat with a hyphy")
+    print(f"Sent to the chat room: {selected_chat}")
 
 def register_auto_reply(client):
-    """Регистрирует триггер на слово 'ронин'."""
+    """Регистрирует триггер на слово 'РонинPro'."""
     
     @client.on(events.NewMessage(outgoing=True))
     async def check_raffle_trigger(event):
-        """Запускает процесс выбора нового подписчика при слове 'ронин'."""
-        if "ронин" in event.message.text.lower():
-            print("New-to-old subscriber's choice!")
+        """Запускает процесс выбора нового подписчика при слове 'РонинPro'."""
+        if "РонинPro" in event.message.text.lower():
+            print("Launching a selection of random subscribers!")
             await send_welcome_message(client)

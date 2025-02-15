@@ -1,7 +1,7 @@
+from telethon import events
 import asyncio
 import os
 import random
-from telethon import events
 
 # Рандомные утренние сообщения
 RESPONSES = [  
@@ -29,27 +29,36 @@ RESPONSES = [
 # Рандомные комментарии к песне
 SONG_COMMENTS = [  
     "Эта песня — чистая энергия! 💥🔥",  
+
     "Заряд бодрости на весь день обеспечен! 🎶⚡",  
+
     "Как же круто поднимает настроение! 🎵💪",  
+
     "После такого трека просто невозможно сидеть на месте! 🚀",  
+
     "Этот бит — топливный заряд для тела и души! 🔥🎧",  
+
     "Музыка, которая разгоняет сонливость за секунды! ⏰⚡",  
+
     "Энергетический взрыв в каждом аккорде! 💣🎶",  
+
     "Вот это мощь! Бодрость на максимум! 🔥💪",  
+
     "Если утро не задалось — включай этот трек! 🎵☀️",  
+
     "Трек, который заставляет двигаться и заряжает позитивом! 🚀🎧",  
 ]  
 
 # Пути к папкам
-IMAGE_FOLDER = os.path.abspath("Фото_материал/Photo_design/Alex_Diaconu_УТРО") # Папка с картинками
-MUSIC_FOLDER = os.path.abspath("Подкаст_музика/Music_designer/Nanson_УТРО")  # Папка с песнями
+IMAGE_FOLDER = os.path.abspath("Фото_материал/Photo_design/Alex_Diaconu_УТРО")
+MUSIC_FOLDER = os.path.abspath("Подкаст_музика/Music_designer/Nanson_УТРО")
 
 def register_auto_reply(client):
-    """Регистрирует авто-ответ на 'утро'."""
+    """Регистрирует авто-ответ на 'УтроPro' с учётом регистра."""
     
     @client.on(events.NewMessage(outgoing=True))
     async def auto_reply(event):
-        if "утро" in event.message.text.lower():
+        if "УтроPro" in event.message.text:  # Убираем .lower(), теперь учитывается регистр
             await asyncio.sleep(1)
 
             random_text = random.choice(RESPONSES)
@@ -65,13 +74,13 @@ def register_auto_reply(client):
             if images:
                 random_image = os.path.join(IMAGE_FOLDER, random.choice(images))
                 await event.client.send_file(event.chat_id, random_image, caption=random_text)
-                print(f"Reply to 'morning' with picture")
+                print(f"Ответ на 'УтроPro' с картинкой")
             else:
                 await event.respond(random_text)
-                print(f"Ответ на 'утро' без картинки (нет файлов в папке)")
+                print(f"Ответ на 'УтроPro' без картинки (нет файлов в папке)")
 
             # Задержка 2 минуты 30 секунд перед отправкой песни
-            await asyncio.sleep(150)  
+            await asyncio.sleep(150)
 
             # Проверяем существование папки с музыкой
             if not os.path.exists(MUSIC_FOLDER):
@@ -84,8 +93,6 @@ def register_auto_reply(client):
                 random_song = os.path.join(MUSIC_FOLDER, random.choice(songs))
                 random_comment = random.choice(SONG_COMMENTS)
                 await event.client.send_file(event.chat_id, random_song, caption=random_comment)
-                print(f"A random song was sent: {random_song}")
+                print(f"Отправлена случайная песня: {random_song}")
             else:
                 print("Ошибка: В папке с музыкой нет файлов!")
-
-
