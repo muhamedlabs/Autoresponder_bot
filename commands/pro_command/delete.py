@@ -2,7 +2,7 @@ from telethon import events
 import asyncio
 
 # Запрещённые слова (с учётом регистра)
-FORBIDDEN_WORDS = ["УтроPro", "НочьPro", "РаботаPro", "ТиражPro", "РонинPro", "ПесняPro", "ДамойPro", "ВиходнойPro", "ОтпускPro", "ХелпPro"]
+FORBIDDEN_WORDS = ["УтроPro", "НочьPro", "РаботаPro", "ТиражPro", "РонинPro", "ПесняPro", "ДамойPro", "КтоPro", "ВиходнойPro", "ОтпускPro", "ХелпPro"]
 
 def register_auto_delete(client):
     """Регистрирует авто-удаление сообщений бота у себя и у пользователей."""
@@ -16,7 +16,7 @@ def register_auto_delete(client):
 
         # Проверяем точное совпадение с запрещёнными словами
         if any(word in text for word in FORBIDDEN_WORDS):
-            await asyncio.sleep(45)  # Ждём 45 секунд
+            await asyncio.sleep(5)  # Ждём 5 секунд
             
             try:
                 # Удаляем сообщение у всех, если это возможно
