@@ -95,6 +95,6 @@ def register_auto_reply(client):
                 random_song = os.path.join(MUSIC_FOLDER, random.choice(songs))
                 random_comment = random.choice(SONG_COMMENTS)
                 await event.client.send_file(event.chat_id, random_song, caption=random_comment)
-                print(f"🎵 Track sent: {random_song}")
+                print(f"Track sent: {random_song}")
             else:
                 print("Ошибка: В папке с музыкой нет файлов!")

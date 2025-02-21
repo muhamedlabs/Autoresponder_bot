@@ -1,4 +1,4 @@
-import os
+import os 
 import random
 from telethon import events
 
@@ -24,7 +24,7 @@ def register_auto_reply(client):
 
     @client.on(events.NewMessage(outgoing=True, pattern=r"^КтоPro$"))
     async def send_bio(event):
-        """Отправляет случайную фотографию Андрея Мухамеда с его биографией."""
+        """Отправляет случайную фотографию Андрея Мухамеда как спойлер + биографию."""
 
         # Проверяем, существует ли папка с фото
         if not os.path.exists(PHOTO_FOLDER):
@@ -38,8 +38,10 @@ def register_auto_reply(client):
         if photos:
             # Выбираем случайную фотографию
             random_photo = os.path.join(PHOTO_FOLDER, random.choice(photos))
-            await event.client.send_file(event.chat_id, random_photo, caption=BIOGRAPHY)
-            print(f"Picture sent with text: КтоPro")
+            await event.client.send_file(
+                event.chat_id, random_photo, caption=BIOGRAPHY, spoiler=True
+            )
+            print(f"Фото отправлено как спойлер: {random_photo}")
         else:
             await event.respond(BIOGRAPHY)  # Если фото нет, просто отправляем текст
             print("Ошибка: В папке нет фотографий!")

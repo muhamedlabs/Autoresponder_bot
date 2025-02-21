@@ -41,6 +41,6 @@ def register_auto_reply(client):
         # Проверяем, существует ли картинка
         if os.path.exists(IMAGE_PATH):
             await event.client.send_file(event.chat_id, IMAGE_PATH, caption=random_text)
-            print(f"Picture sent with text: {random_text}")
+            print(f"Picture sent with text: ДамойPro")
         else:
             print(f"Ошибка: Файл '{IMAGE_PATH}' не найден!")

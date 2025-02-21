@@ -5,6 +5,7 @@ from commands.handler import handle_command
 from Ignore.config import phone_number, api_hash, api_id
 from commands.pro_command.delete import register_auto_delete  # Импорт авто-удаления
 from commands.pro_command.comment import register_comment_handler # Импорт коментов
+from commands.pro_command.skeddy import register_ideas_plans # Импорт идеи-плани Мухамеда
 from commands.pro_command.answers.auto_loader import load_auto_responses # Импорт авто-ответ
 
 # Файл для хранения данных пользователей
@@ -22,7 +23,10 @@ register_auto_delete(client)
 # Подключение комментариев
 register_comment_handler(client)
 
-# Загружаем автоответы
+# Подключение идеи-плани Мухамеда
+register_ideas_plans(client)
+
+# Загружаем авто-ответы
 load_auto_responses(client)
 
 def load_replied_users():
