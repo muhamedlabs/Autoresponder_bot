@@ -5,7 +5,7 @@
 
 session_name.session
 session_name.session-journal
-Ignore/Auto_users.txt
-Ignore/User_comments.txt
-Ignore/skeddy_texts.txt
-Ignore/config.py
+BANNED_FILES/Auto_users.txt
+BANNED_FILES/User_comments.txt
+BANNED_FILES/skeddy_texts.txt
+BANNED_FILES/config.py
