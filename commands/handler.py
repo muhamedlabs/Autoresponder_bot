@@ -14,7 +14,7 @@ from commands.podcast import handle_podcast
 from commands.quotes import handle_quotes
 from commands.picture import handle_picture
 from commands.faq import handle_faq
-from commands.weevil import handle_weevil
+from commands.chatting import handle_chatting
 
 
 
@@ -60,7 +60,7 @@ async def handle_command(client, chat_id, user_id, command, message_text):
     elif command == "!faq":
         await handle_faq(client, chat_id, user_id, message_text)
     elif command == "!tyasitsu":
-        await handle_weevil(client, chat_id, user_id, message_text)              
+        await handle_chatting(client, chat_id, user_id, message_text)              
     else:
         # Если команда неизвестна, отправляем красивое сообщение и изображение
         await client.send_message(

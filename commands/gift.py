@@ -1,14 +1,27 @@
-async def handle_gift(client, chat_id):
+from BANNED_FILES.config import PHOTO_giftRU, PHOTO_giftUK, PHOTO_giftEN
+from language_file.UserLanguage import get_user_language
+from language_file.gift import get_translation
+
+
+
+async def handle_gift(client, chat_id, user_id, message_text):
+
+    # Определяем язык пользователя (оптимизировано)
+    lang = await get_user_language(client, user_id, message_text)
+
+    # Словарь соответствий языков и изображений
+    photo_dict = {
+        "ru": PHOTO_giftRU,
+        "uk": PHOTO_giftUK,
+        "en": PHOTO_giftEN
+    }
+
+    # Выбираем нужное фото, если язык неизвестен — используем дефолтное
+    PHOTO_gift = photo_dict.get(lang, PHOTO_giftRU)
+
     await client.send_message(
         chat_id,
-        "🎁 **Подарок от Андрея Мухамеда!** 🎁\n\n"
-        "Пока ты ждёшь ответ от **Андрея Мухамеда**, мы приготовили для тебя небольшой, но приятный сюрприз! 😎\n\n"
-        "Внутри ты найдёшь:\n"
-        "✅ Авторские работы\n"
-        "✅ Файлы для **After Effects**, **Blender**, **Premiere** и **Photoshop**\n\n"
-        "Не упусти шанс получить этот подарок! 🎉 "
-        "Получай свой подарок по ссылке ниже:\n\n"
-        "🔗 [Скачать подарок](https://bit.ly/4hY2kmK)\n\n",
-        file="Фото_материал/2 copy.png"  # Укажите путь к файлу изображения
+        get_translation("grant", lang),
+        file=PHOTO_gift  # Файл вашей картинки
     )
 

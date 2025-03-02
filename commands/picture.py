@@ -1,5 +1,5 @@
 import requests 
-from Ignore.config import UNSPLASH_ACCESS_KEY
+from BANNED_FILES.config import UNSPLASH_ACCESS_KEY
 
 async def handle_picture(client, chat_id):
     """Обработчик команды !картинка для отправки случайной картинки с Unsplash."""
