@@ -5,7 +5,8 @@
 
 session_name.session
 session_name.session-journal
-BANNED_FILES/Auto_users.txt
-BANNED_FILES/User_comments.txt
-BANNED_FILES/skeddy_texts.txt
+BANNED_FILES/UsersInfo.txt
+BANNED_FILES/UserComments.txt
+BANNED_FILES/UsersСontest.json
+BANNED_FILES/Skeddy_texts.txt
 BANNED_FILES/config.py
