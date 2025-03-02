@@ -1,5 +1,9 @@
 # Файл является основным обработчиком команд
 
+from BANNED_FILES.config import PHOTO_handlerRU, PHOTO_handlerUK, PHOTO_handlerEN
+from language_file.UserLanguage import get_user_language
+from language_file.handler import get_translation
+
 from commands.info import handle_info
 from commands.gift import handle_gift
 from commands.bots import handle_bots
@@ -12,59 +16,55 @@ from commands.picture import handle_picture
 from commands.faq import handle_faq
 from commands.weevil import handle_weevil
 
+
+
 # Функция для обработки команд
-async def handle_command(client, chat_id, command):
-    ignored_commands = {"!старт", "!пропуск", "!игнор"}
+async def handle_command(client, chat_id, user_id, command, message_text):
+    ignored_commands = {"!start", "!skip", "!ignore"}
     
     if command in ignored_commands:
         # Игнорируем указанные команды
         return
     
-    if command == "!инфо":
-        await handle_info(client, chat_id)
-    elif command == "!подарок":
-        await handle_gift(client, chat_id)
-    elif command == "!боты":
-        await handle_bots(client, chat_id)
-    elif command == "!донат":
-        await handle_donate(client, chat_id)
-    elif command == "!реклама":
-        await handle_advertising(client, chat_id)
-    elif command == "!новости":
-        await handle_news(client, chat_id)  
-    elif command == "!подкаст":
-        await handle_podcast(client, chat_id)
-    elif command == "!цитата":
-        await handle_quotes(client, chat_id)
-    elif command == "!картинка":
-        await handle_picture(client, chat_id)
-    elif command == "!чаво":
-        await handle_faq(client, chat_id)
-    elif command == "!тясицу":
-        await handle_weevil(client, chat_id)              
+    # Определяем язык пользователя (оптимизировано)
+    lang = await get_user_language(client, user_id, message_text)
+
+    # Словарь соответствий языков и изображений
+    photo_dict = {
+        "ru": PHOTO_handlerRU,
+        "uk": PHOTO_handlerUK,
+        "en": PHOTO_handlerEN
+    }
+
+    # Выбираем нужное фото, если язык неизвестен — используем дефолтное
+    PHOTO_handler = photo_dict.get(lang, PHOTO_handlerRU)
+    
+    if command == "!info":
+        await handle_info(client, chat_id, user_id, message_text)
+    elif command == "!gift":
+        await handle_gift(client, chat_id, user_id, message_text)
+    elif command == "!bots":
+        await handle_bots(client, chat_id, user_id, message_text)
+    elif command == "!donate":
+        await handle_donate(client, chat_id, user_id, message_text)
+    elif command == "!advertising":
+        await handle_advertising(client, chat_id, user_id, message_text)
+    elif command == "!news":
+        await handle_news(client, chat_id, user_id, message_text)  
+    elif command == "!podcast":
+        await handle_podcast(client, chat_id, user_id, message_text)
+    elif command == "!quote":
+        await handle_quotes(client, chat_id, user_id, message_text)
+    elif command == "!picture":
+        await handle_picture(client, chat_id, user_id, message_text)
+    elif command == "!faq":
+        await handle_faq(client, chat_id, user_id, message_text)
+    elif command == "!tyasitsu":
+        await handle_weevil(client, chat_id, user_id, message_text)              
     else:
         # Если команда неизвестна, отправляем красивое сообщение и изображение
         await client.send_message(
             chat_id,
-            (
-                "📢 **Неизвестная команда**\n"
-                "Проверьте полный список доступных команд сервиса:\n\n"
-                "`!инфо` — Информация о создателе и многом другом.\n"
-                "`!тясицу` — Уникальный чат для поклонников создателя.\n"
-                "`!подарок` — Специальные предложения для вас!\n"
-                "`!новости` — Новые обновления от Мухамеда.\n" 
-                "`!старт` — Перезапуск мини-бота user.\n"
-                "`!реклама` — Узнать о наших рекламных услугах.\n"
-                "`!донат` — Поддержите нас и помогите развивать проекты.\n"
-                "`!чаво` — Популярные вопросы и ответы.\n"
-                "`!цитата` — Мудрые высказывания великих людей.\n"
-                "`!картинка` — Удивительные моменты от сервера Unsplash.\n"
-                "`!подкаст` — Запись идеи самого создателя.\n"
-                "`!боты` — Все боты разработаны командой Muhamed IT Solutions.\n"
-                "`/skeddy` — планы, идеи и амбициозные цели Андрея Мухамеда.\n"
-                "`/comment текст` — Написать отзыв о Videoeditor, Creator, Designer, SS...\n\n"
-                "🎯 Если вам нужна помощь, просто подождите, я скоро вам напишу!"
-            ),
-            file="Фото_материал/0.12 copy.png"  # Укажите путь к вашему изображению
+            get_translation("unknown", lang),
+            file=PHOTO_handler  # Укажите ваше изображения
         )
-
