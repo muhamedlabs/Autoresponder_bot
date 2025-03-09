@@ -3,14 +3,14 @@ import asyncio
 import langdetect
 import langid
 from telethon import TelegramClient, events
-from commands.handler import handle_command
 from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
+from commands.UserHandler import handle_command
+from language_file.UserLanguage import get_user_language
+from language_file.main import get_translation
 from commands.pro_command.delete import register_auto_delete  # Авто-удаление
 from commands.pro_command.comment import register_comment_handler  # Комментарии
 from commands.pro_command.skeddy import register_ideas_plans  # Идеи-планы
 from commands.pro_command.answers.auto_loader import load_auto_responses  # Авто-ответы
-from language_file.UserLanguage import get_user_language
-from language_file.main import get_translation
 
 # Создание клиента
 client = TelegramClient('session_name', api_id, api_hash)
