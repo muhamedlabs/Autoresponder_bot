@@ -15,6 +15,7 @@ from commands.quotes import handle_quotes
 from commands.picture import handle_picture
 from commands.faq import handle_faq
 from commands.chatting import handle_chatting
+from commands.skeddy import handle_skeddy
 
 
 
@@ -60,7 +61,9 @@ async def handle_command(client, chat_id, user_id, command, message_text):
     elif command == "!faq":
         await handle_faq(client, chat_id, user_id, message_text)
     elif command == "!tyasitsu":
-        await handle_chatting(client, chat_id, user_id, message_text)              
+        await handle_chatting(client, chat_id, user_id, message_text)  
+    elif command == "!skeddy":
+        await handle_skeddy(client, chat_id, user_id, message_text)      
     else:
         # Если команда неизвестна, отправляем красивое сообщение и изображение
         await client.send_message(

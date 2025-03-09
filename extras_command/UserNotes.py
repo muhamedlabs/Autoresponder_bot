@@ -24,7 +24,7 @@ async def save_comment(user_id, username, first_name, last_name, comment):
 
     print(f"Комментарий сохранён для {user_id}")
 
-def register_comment_handler(client):
+def load_сomment(client):
     """Регистрирует команду /comment."""
     
     @client.on(events.NewMessage(pattern=r"^/comment\s+(.+)", incoming=True))

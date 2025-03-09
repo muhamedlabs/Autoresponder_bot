@@ -4,28 +4,26 @@ import langdetect
 import langid
 from telethon import TelegramClient, events
 from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
-from commands.UserHandler import handle_command
-from language_file.UserLanguage import get_user_language
-from language_file.main import get_translation
-from commands.pro_command.delete import register_auto_delete  # Авто-удаление
-from commands.pro_command.comment import register_comment_handler  # Комментарии
-from commands.pro_command.skeddy import register_ideas_plans  # Идеи-планы
-from commands.pro_command.answers.auto_loader import load_auto_responses  # Авто-ответы
+from commands.UserHandler import handle_command # Загрузка основних команд
+from language_file.UserLanguage import get_user_language # Загрузка определения языка
+from extras_command.UserProces import load_proces # Загрузка доп команд
+from extras_command.UserRemover import load_remover # Загрузка автоудаление команд
+from extras_command.UserNotes import load_сomment # Загрузка комментариев от пользователей
+
+
+from language_file.main import get_translation # Загрузка транскрипция
 
 # Создание клиента
 client = TelegramClient('session_name', api_id, api_hash)
 
-# Подключаем авто-удаление
-register_auto_delete(client)
+# Подключение автоудаление команд
+load_remover(client)
 
-# Подключение комментариев
-register_comment_handler(client)
+# Подключение доп команд
+load_proces(client)
 
-# Подключение идеи-плани Мухамеда
-register_ideas_plans(client)
-
-# Загружаем авто-ответы
-load_auto_responses(client)
+# Подключение комментариев от пользователей
+load_сomment(client)
 
 
 
@@ -112,9 +110,9 @@ async def handler(event):
             await event.reply(get_translation("welcome", lang))
 
         save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
-        print(f"Сохранены данные пользователя: {user_id}, Имя пользователя: {username}, Имя: {first_name}, Фамилия: {last_name}, Телефон: {phone}, ID чата: {chat_id}, Ссылка: {link}")
+        print(f"Сохранено данные пользователя: {user_id}, Имя пользователя: {username}, Ссылка: {link}")
     else:
-        print(f"Сообщение от {user_id} пропущено: уже обработан.")
+        print(f"Сообщение от {username} обработано.")
 
     # Проверяем команды
     if message_text.startswith("!"):
