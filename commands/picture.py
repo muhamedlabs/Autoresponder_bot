@@ -1,8 +1,14 @@
-import requests 
+import requests
 from BANNED_FILES.config import UNSPLASH_ACCESS_KEY
+from language_file.UserLanguage import get_user_language
+from language_file.picture import get_translation
 
-async def handle_picture(client, chat_id):
-    """Обработчик команды !картинка для отправки случайной картинки с Unsplash."""
+async def handle_picture(client, chat_id, user_id, message_text):
+    """Обработчик команды !picture для отправки случайной картинки с Unsplash."""
+    
+    # Определяем язык пользователя
+    lang = await get_user_language(client, user_id, message_text)
+    
     # Запрос к API Unsplash для случайного изображения по тематикам
     url = "https://api.unsplash.com/photos/random"
     query_params = {
@@ -23,29 +29,16 @@ async def handle_picture(client, chat_id):
         author = data["user"]["name"]
         author_url = data["user"]["links"]["html"]
 
-        # Формируем сообщение с изображением
-        await client.send_message(
-            chat_id,
-            (
-                f"🌍 **Удивительные моменты от сервера Unsplash**\n\n"
-                f"Смотреть изображение: [тут]({image_url})\n\n"
-                f"Автор: [{author}]({author_url})\n\n"
-                f"Описание: {description}\n\n"
-            ),
-            parse_mode="markdown"
+        # Получаем перевод сообщения
+        message_text = get_translation("image_caption", lang).format(
+            image_url=image_url, author=author, author_url=author_url, description=description
         )
+
+        # Отправляем сообщение
+        await client.send_message(chat_id, message_text, parse_mode="markdown")
 
     except Exception as e:
-        # Обработка ошибок
-        await client.send_message(
-            chat_id,
-            (
-                "❌ **Ошибка при загрузке изображения**\n\n"
-                "К сожалению, сейчас мы не можем загрузить новое изображение. "
-                "Попробуйте снова через некоторое время.\n\n"
-                "Мы всегда стремимся радовать вас лучшими моментами!"
-            )
-        )
+        # Обрабатываем ошибку с переводом
+        error_message = get_translation("error_message", lang)
+        await client.send_message(chat_id, error_message)
         print(f"Ошибка: {e}")
-
-
