@@ -1,7 +1,7 @@
 import requests
 from BANNED_FILES.config import UNSPLASH_ACCESS_KEY
-from language_file.UserLanguage import get_user_language
-from language_file.picture import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.picture import get_translation
 
 async def handle_picture(client, chat_id, user_id, message_text):
     """Обработчик команды !picture для отправки случайной картинки с Unsplash."""

@@ -1,8 +1,8 @@
 import os
 import random
 from BANNED_FILES.config import AUDIO_FILE, PODCAST_FILE
-from language_file.UserLanguage import get_user_language
-from language_file.podcast import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.podcast import get_translation
 
 
 

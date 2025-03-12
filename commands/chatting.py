@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_chattingRU, PHOTO_chattingUK, PHOTO_chattingEN
-from language_file.UserLanguage import get_user_language
-from language_file.chatting import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.chatting import get_translation
 
 
 

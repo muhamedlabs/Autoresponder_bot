@@ -5,7 +5,7 @@ import langid
 from telethon import TelegramClient, events
 from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
 from commands.UserHandler import handle_command # Загрузка основних команд
-from language_file.UserLanguage import get_user_language # Загрузка определения языка
+from language_file.transcribation.UserLanguage import get_user_language # Загрузка определения языка
 from extras_command.UserProces import load_proces # Загрузка доп команд
 from extras_command.UserRemover import load_remover # Загрузка автоудаление команд
 from extras_command.UserNotes import load_сomment # Загрузка комментариев от пользователей

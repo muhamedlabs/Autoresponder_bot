@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_botsRU, PHOTO_botsUK, PHOTO_botsEN
-from language_file.UserLanguage import get_user_language
-from language_file.bots import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.bots import get_translation
 
 
 

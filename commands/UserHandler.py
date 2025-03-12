@@ -1,8 +1,8 @@
 # Файл является основным обработчиком команд
 
 from BANNED_FILES.config import PHOTO_handlerRU, PHOTO_handlerUK, PHOTO_handlerEN
-from language_file.UserLanguage import get_user_language
-from language_file.handler import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.handler import get_translation
 
 from commands.info import handle_info
 from commands.gift import handle_gift

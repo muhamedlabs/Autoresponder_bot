@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_faqRU, PHOTO_faqUK, PHOTO_faqEN
-from language_file.UserLanguage import get_user_language
-from language_file.faq import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.faq import get_translation
 
 
 

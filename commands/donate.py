@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_daisyRU, PHOTO_daisyUK, PHOTO_daisyEN
-from language_file.UserLanguage import get_user_language
-from language_file.donate import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.donate import get_translation
 
 
 async def handle_donate(client, chat_id, user_id, message_text):

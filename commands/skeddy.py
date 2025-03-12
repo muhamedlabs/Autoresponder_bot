@@ -1,8 +1,8 @@
 import random
 import os
 from BANNED_FILES.config import VIDEO_skeddyRU, VIDEO_skeddyUK, VIDEO_skeddyEN
-from language_file.UserLanguage import get_user_language
-from language_file.skeddy import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.skeddy import get_translation
 
 async def handle_skeddy(client, chat_id, user_id, message_text):
     # Определяем язык пользователя

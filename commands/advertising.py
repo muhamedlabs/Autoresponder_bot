@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_advertisingRU, PHOTO_advertisingUK, PHOTO_advertisingEN
-from language_file.UserLanguage import get_user_language
-from language_file.advertising import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.advertising import get_translation
 
 
 

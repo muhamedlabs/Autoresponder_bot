@@ -1,6 +1,6 @@
 from BANNED_FILES.config import PHOTO_giftRU, PHOTO_giftUK, PHOTO_giftEN
-from language_file.UserLanguage import get_user_language
-from language_file.gift import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.gift import get_translation
 
 
 

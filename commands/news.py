@@ -1,6 +1,6 @@
 from BANNED_FILES.config import VIDEO_newsRU, VIDEO_newsUK, VIDEO_newsEN
-from language_file.UserLanguage import get_user_language
-from language_file.news import get_translation
+from language_file.transcribation.UserLanguage import get_user_language
+from language_file.commands.news import get_translation
 
 
 
