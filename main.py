@@ -111,8 +111,6 @@ async def handler(event):
 
         save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
         print(f"Сохранено данные пользователя: {user_id}, Имя пользователя: {username}, Ссылка: {link}")
-    else:
-        print(f"Сообщение от {username} обработано.")
 
     # Проверяем команды
     if message_text.startswith("!"):

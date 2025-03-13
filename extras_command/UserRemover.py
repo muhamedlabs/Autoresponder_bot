@@ -19,6 +19,5 @@ def load_remover(client):
             try:
                 # Удаляем сообщение у всех, если это возможно
                 await client.delete_messages(event.chat_id, event.message.id, revoke=True)
-                print(f"Chat message deleted {event.chat_id}: {text}")
             except Exception as e:
                 print(f"Ошибка удаления: {e}")
