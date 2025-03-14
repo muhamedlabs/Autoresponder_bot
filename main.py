@@ -132,12 +132,12 @@ async def main():
             password = input("Введите пароль двухфакторной аутентификации: ")
             await client.start(password=password)
 
-        print("Бот успешно запущен!")
+        print("The bot has been successfully launched!")
     except Exception as e:
         print(f"Ошибка авторизации: {e}")
         return
 
-    print("Скрипт работает. Ожидание сообщений...")
+    print("Script is running. Waiting for messages...")
     await client.run_until_disconnected()
 
 
