@@ -3,20 +3,19 @@ import asyncio
 import langdetect
 import langid
 from telethon import TelegramClient, events
+from telethon.errors import YouBlockedUserError
 from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
-from commands.UserHandler import handle_command # Загрузка основних команд
-from language_file.transcribation.UserLanguage import get_user_language # Загрузка определения языка
-from extras_command.UserProces import load_proces # Загрузка доп команд
-from extras_command.UserRemover import load_remover # Загрузка автоудаление команд
-from extras_command.UserNotes import load_сomment # Загрузка комментариев от пользователей
-
-
-from language_file.main import get_translation # Загрузка транскрипция
+from commands.UserHandler import handle_command  # Загрузка основных команд
+from language_file.transcribation.UserLanguage import get_user_language  # Загрузка определения языка
+from extras_command.UserProces import load_proces  # Загрузка доп команд
+from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
+from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
+from language_file.main import get_translation  # Загрузка транскрипции
 
 # Создание клиента
 client = TelegramClient('session_name', api_id, api_hash)
 
-# Подключение автоудаление команд
+# Подключение автоудаления команд
 load_remover(client)
 
 # Подключение доп команд
@@ -24,7 +23,6 @@ load_proces(client)
 
 # Подключение комментариев от пользователей
 load_сomment(client)
-
 
 
 def load_replied_users():
@@ -103,21 +101,26 @@ async def handler(event):
     if user_id not in replied_users:
         replied_users.add(user_id)  # Добавляем в список, чтобы не дублировать
 
-        # Отправляем видео или текстовое сообщение
-        if os.path.exists(VIDEO_FILE):
-            await client.send_file(chat_id, VIDEO_FILE, caption=get_translation("welcome", lang))
-        else:
-            await event.reply(get_translation("welcome", lang))
+        try:
+            # Отправляем видео или текстовое сообщение
+            if os.path.exists(VIDEO_FILE):
+                await client.send_file(chat_id, VIDEO_FILE, caption=get_translation("welcome", lang))
+            else:
+                await event.reply(get_translation("welcome", lang))
 
-        save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
-        print(f"Сохранено данные пользователя: {user_id}, Имя пользователя: {username}, Ссылка: {link}")
+            save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
+            print(f"Сохранены данные пользователя: {user_id}, Имя пользователя: {username}, Ссылка: {link}")
+
+        except YouBlockedUserError:
+            print(f"Пользователь {user_id} заблокировал бота или бот заблокировал пользователя.")
+            # Можно добавить уведомление администратора или логирование
+        except Exception as e:
+            print(f"Ошибка при отправке сообщения: {e}")
 
     # Проверяем команды
     if message_text.startswith("!"):
         command = message_text.split()[0]  # Берём первую часть текста как команду
         await handle_command(client, chat_id, user_id, command, message_text)
-
-
 
 
 async def main():
@@ -126,15 +129,15 @@ async def main():
         await client.start(phone=lambda: phone_number)
 
         if not await client.is_user_authorized():
-            password = input("Enter the two-factor authentication password: ")
+            password = input("Введите пароль двухфакторной аутентификации: ")
             await client.start(password=password)
 
-        print("The bot has been successfully launched!")
+        print("Бот успешно запущен!")
     except Exception as e:
-        print(f"Authorization Error: {e}")
+        print(f"Ошибка авторизации: {e}")
         return
 
-    print("Script is running. Waiting for messages...")
+    print("Скрипт работает. Ожидание сообщений...")
     await client.run_until_disconnected()
 
 
