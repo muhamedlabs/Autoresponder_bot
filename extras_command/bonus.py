@@ -3,7 +3,7 @@ import random
 import re
 from telethon import events
 from telethon.errors.rpcerrorlist import YouBlockedUserError, UserIsBlockedError, PeerIdInvalidError
-from BANNED_FILES.config import FILE_NAME, TRIUMPHATOR_GIF
+from BANNED_FILES.config import FILE_NAME, BONUS_GIF
 from language_file.transcribation.MemberLanguage import get_user_language
 from language_file.extras_command.bonus import get_translation
 
@@ -27,7 +27,7 @@ async def send_winner_messages(client):
 
     selected_chats = random.sample(chat_ids, 3)  # Выбираем 3 случайных чата
 
-    if not os.path.exists(TRIUMPHATOR_GIF):
+    if not os.path.exists(BONUS_GIF):
         return  # Если нет гифки, ничего не делаем
 
     for chat_id in selected_chats:
@@ -42,14 +42,14 @@ async def send_winner_messages(client):
 
             # Получаем язык именно этого пользователя
             lang = get_user_language(recipient_id) or "ru"  
-            win_messages = get_translation("triumphator_messages", lang)
+            win_messages = get_translation("bonus_messages", lang)
 
             if not win_messages or not isinstance(win_messages, list):
                 continue  # Пропускаем, если нет перевода
 
             random_text = random.choice(win_messages)  # Берём случайное сообщение
             
-            await client.send_file(chat_id, TRIUMPHATOR_GIF, caption=random_text)
+            await client.send_file(chat_id, BONUS_GIF, caption=random_text)
 
         except (YouBlockedUserError, UserIsBlockedError, PeerIdInvalidError):
             continue  # Пропускаем недоступные чаты
@@ -57,11 +57,11 @@ async def send_winner_messages(client):
             continue  # Игнорируем любые другие ошибки
 
 def register_proces(client):
-    """Регистрирует триггер на команду 'ТиражPro'."""
+    """Регистрирует триггер на команду 'РонинPro'."""
     
     @client.on(events.NewMessage(outgoing=True))
     async def check_raffle_trigger(event):
-        """Запускает розыгрыш, если бот отправляет именно 'ТиражPro' (с учётом регистра)."""
-        if event.message.text.strip() == "ТиражPro":  # Проверяем точное совпадение
+        """Запускает розыгрыш, если бот отправляет именно 'РонинPro' (с учётом регистра)."""
+        if event.message.text.strip() == "РонинPro":  # Проверяем точное совпадение
             await send_winner_messages(client)
 
