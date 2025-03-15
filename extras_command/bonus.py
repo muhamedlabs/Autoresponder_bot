@@ -5,7 +5,7 @@ from telethon import events
 from telethon.errors.rpcerrorlist import YouBlockedUserError, UserIsBlockedError, PeerIdInvalidError
 from BANNED_FILES.config import FILE_NAME, TRIUMPHATOR_GIF
 from language_file.transcribation.MemberLanguage import get_user_language
-from language_file.extras_command.triumphator import get_translation
+from language_file.extras_command.bonus import get_translation
 
 # Функция загрузки списка чатов
 def load_chat_ids():
