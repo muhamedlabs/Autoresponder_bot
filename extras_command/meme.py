@@ -6,7 +6,7 @@ from BANNED_FILES.config import MEMES_FOLDER
 def register_proces(client):
     """Регистрирует команду 'МемPro'."""
 
-    @client.on(events.NewMessage(outgoing=True, pattern=r"^МемPro$"))
+    @client.on(events.NewMessage(pattern=r"^МемPro$"))
     async def send_meme_voice(event):
         """Отправляет случайное голосовое сообщение в ответ на команду."""
         try:
