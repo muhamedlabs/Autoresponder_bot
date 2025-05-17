@@ -80,9 +80,9 @@
 ## 🖼️ Медиа-возможности
 
 <div align="center">
-  <img src="https://example.com/photo1.jpg" width="200" alt="Пример изображения 1">
-  <img src="https://example.com/photo2.jpg" width="200" alt="Пример изображения 2">
-  <img src="https://example.com/photo3.jpg" width="200" alt="Пример изображения 3">
+  <img src="![image](https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97)" width="200" alt="Пример изображения 1">
+  <img src="![image](https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70)" width="200" alt="Пример изображения 2">
+  <img src="![image](https://github.com/user-attachments/assets/01a852e5-df32-4c53-99d5-0db636e600f3)" width="200" alt="Пример изображения 3">
 </div>
 
 Бот поддерживает все форматы медиа:
