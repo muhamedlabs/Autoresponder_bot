@@ -78,51 +78,18 @@
 ## 🎨 Медиа-возможности бота
 
 <div align="center">
-  <h3 style="color: #4a6bdf; font-size: 1.5em; margin-bottom: 25px; border-bottom: 2px solid #f0f2f5; padding-bottom: 10px;">✨ Наш бот в действии</h3>
+  <h3 style="color: #4a6bdf; margin-bottom: 20px;">✨ Наш бот в действии</h3>
   
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 30px 0;">
-    <!-- Первый ряд -->
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97" style="width: 100%; height: auto; object-fit: cover;" alt="Пример команды УтроPro">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Команда УтроPro
-      </div>
-    </div>
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/82a2f2c7-8fd4-49b5-9f4c-1a7546d7d515" style="width: 100%; height: auto; object-fit: cover;" alt="Пример команды НочьPro">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Команда НочьPro
-      </div>
-    </div>
-    <!-- Второй ряд -->
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/b860bf2b-79ef-4596-87bc-df8f002abf96" style="width: 100%; height: auto; object-fit: cover;" alt="Пример команды РоботаPro">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Команда РоботаPro
-      </div>
-    </div>
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/9a538de8-670c-4ace-a94d-2974b2ea06a0" style="width: 100%; height: auto; object-fit: cover;" alt="Пример GIF">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Анимированный GIF
-      </div>
-    </div>
-    <!-- Третий ряд -->
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70" style="width: 100%; height: auto; object-fit: cover;" alt="Пример видео">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Видео контент
-      </div>
-    </div>
-    <div style="position: relative; overflow: hidden; border-radius: 16px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
-      <img src="https://github.com/user-attachments/assets/8ae0b2d6-4555-465a-a191-d6a5b5c6b8b3" style="width: 100%; height: auto; object-fit: cover;" alt="Пример аудио">
-      <div style="position: absolute; bottom: 0; background: rgba(0,0,0,0.7); color: white; width: 100%; padding: 8px; text-align: center;">
-        Голосовые сообщения
-      </div>
-    </div>
+  <div style="display: flex; overflow-x: auto; gap: 15px; padding: 10px 0; scrollbar-width: thin;">
+    <img src="https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 1">
+    <img src="https://github.com/user-attachments/assets/82a2f2c7-8fd4-49b5-9f4c-1a7546d7d515" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 2">
+    <img src="https://github.com/user-attachments/assets/b860bf2b-79ef-4596-87bc-df8f002abf96" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 3">
+    <img src="https://github.com/user-attachments/assets/9a538de8-670c-4ace-a94d-2974b2ea06a0" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 4">
+    <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 5">
+    <img src="https://github.com/user-attachments/assets/8ae0b2d6-4555-465a-a191-d6a5b5c6b8b3" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 6">
   </div>
-  </div>
-</div>
+
+  <p style="margin-top: 15px; color: #666; font-size: 0.9em;">← Прокрутите в сторону чтобы увидеть больше примеров →</p>
 </div>
 
 
