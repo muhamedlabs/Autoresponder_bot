@@ -87,6 +87,10 @@
     <img src="https://github.com/user-attachments/assets/9a538de8-670c-4ace-a94d-2974b2ea06a0" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 4">
     <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 5">
     <img src="https://github.com/user-attachments/assets/8ae0b2d6-4555-465a-a191-d6a5b5c6b8b3" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 6">
+    <img src="https://github.com/user-attachments/assets/cdb13361-98f7-4550-a902-51bb106d42fb" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 7">
+    <img src="https://github.com/user-attachments/assets/9ce4a8b5-01e2-4af1-884b-3d161bb8a94c" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 8">
+    <img src="https://github.com/user-attachments/assets/7836a17f-0fe8-494a-8deb-6ba94fdf8d32" style="height: 250px; border-radius: 12px; box-shadow: 0 3px 10px rgba(0,0,0,0.1);" alt="Пример 9">
+
   </div>
 
   <p style="margin-top: 15px; color: #666; font-size: 0.9em;">← Прокрутите в сторону чтобы увидеть больше примеров →</p>
