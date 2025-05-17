@@ -124,7 +124,7 @@
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/AndreMuhamed/Telegram-Bot.git && cd Telegram-Bot
+git clone https://github.com/muhamedlabs/Autoresponder_bot.git && cd Telegram-Bot
 ```
 
 2. Установите зависимости:
