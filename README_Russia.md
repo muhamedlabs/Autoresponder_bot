@@ -158,7 +158,7 @@ python main.py
 
 ## 📢 Связь и поддержка
 По всем вопросам обращайтесь:
-- [Telegram-канал](https://t.me/andremuhamedd)
+- Telegram-канал: https://t.me/muhamedlabs
 - Email: akynsasa@gmail.com
 
 <div align="center">
