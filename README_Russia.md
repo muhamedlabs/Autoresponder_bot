@@ -1,5 +1,3 @@
-
-
 <div align="center">  
   <h1>🤖 User Telegram Bot by Muhamed IT Solutions</h1>  
 </div>  
@@ -80,9 +78,9 @@
 ## 🖼️ Медиа-возможности
 
 <div align="center">
-  <img src="![image](https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97)">
-  <img src="![image](https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70)">
-  <img src="![image](https://github.com/user-attachments/assets/01a852e5-df32-4c53-99d5-0db636e600f3)">
+  <img src="https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97">
+  <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70">
+  <img src="https://github.com/user-attachments/assets/01a852e5-df32-4c53-99d5-0db636e600f3">
 </div>
 
 Бот поддерживает все форматы медиа:
