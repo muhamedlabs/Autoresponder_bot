@@ -78,30 +78,15 @@
 ## 🎨 Медиа-возможности бота
 
 <div align="center">
-  <h3>📸 Примеры работы с изображениями</h3>
+  <h3>📸 Примеры работы бота</h3>
   
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 20px 0;">
     <img src="https://github.com/user-attachments/assets/2ac5762a-3545-4f38-82d1-4e393fb02b97" width="45%" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
     <img src="https://github.com/user-attachments/assets/82a2f2c7-8fd4-49b5-9f4c-1a7546d7d515" width="45%" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
     <img src="https://github.com/user-attachments/assets/b860bf2b-79ef-4596-87bc-df8f002abf96" width="45%" style="border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-  </div>
-
-  <h3>🎭 Мультимедийный функционал</h3>
-  
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 25px 0;">
-    <div>
-      <img src="https://github.com/user-attachments/assets/9a538de8-670c-4ace-a94d-2974b2ea06a0" style="border-radius: 8px; border: 1px solid #eee;" alt="GIF пример">
-      <p align="center"><em>Анимированные GIF</em></p>
-    </div>
-    <div>
-      <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70" style="border-radius: 8px; border: 1px solid #eee;" alt="Видео пример">
-      <p align="center"><em>Видео контент</em></p>
-    </div>
-    <div>
-      <img src="https://github.com/user-attachments/assets/8ae0b2d6-4555-465a-a191-d6a5b5c6b8b3" style="border-radius: 8px; border: 1px solid #eee;" alt="Аудио пример">
-      <p align="center"><em>Голосовые сообщения</em></p>
-    </div>
-  </div>
+    <img src="https://github.com/user-attachments/assets/9a538de8-670c-4ace-a94d-2974b2ea06a0" style="border-radius: 8px; border: 1px solid #eee;" alt="GIF пример">
+    <img src="https://github.com/user-attachments/assets/3c9b3c43-6a46-458c-9e08-ef6ca8233d70" style="border-radius: 8px; border: 1px solid #eee;" alt="Видео пример">
+    <img src="https://github.com/user-attachments/assets/8ae0b2d6-4555-465a-a191-d6a5b5c6b8b3" style="border-radius: 8px; border: 1px solid #eee;" alt="Аудио пример">
 </div>
 
 
