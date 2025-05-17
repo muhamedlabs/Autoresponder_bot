@@ -1,6 +1,3 @@
-Ось українська версія README файлу:
-
-```markdown
 <div align="center">  
   <h1>🤖 User Telegram Bot від Muhamed IT Solutions</h1>  
 </div>  
