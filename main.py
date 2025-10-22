@@ -1,143 +1,163 @@
 import os
 import asyncio
-import langdetect
-import langid
-import zipfile
-import tempfile
-from datetime import datetime
-from telethon import TelegramClient, events, types
+from datetime import datetime, timedelta
+from telethon import TelegramClient, events
 from telethon.errors import YouBlockedUserError
-from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
-from commands.UserHandler import handle_command  # Загрузка основных команд
-from language_file.transcribation.UserLanguage import get_user_language  # Загрузка определения языка
-from extras_command.UserProces import load_proces  # Загрузка доп команд
-from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
-from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
-from language_file.main import get_translation  # Загрузка транскрипции
-from extras_command.ads_command import load_ads_command # Загрузка архиватора
 
-# Инициализация клиента
+from BANNED_FILES.config import phone_number, api_hash, api_id, VIDEO_FILE, RedisManager
+from commands.UserHandler import handle_command
+from language_file.transcribation.UserLanguage import get_user_language
+from extras_command.UserProces import load_proces
+from extras_command.UserRemover import load_remover
+from extras_command.UserNotes import load_сomment
+from language_file.main import get_translation
+from extras_command.ads_command import load_ads_command
+from redis_storage.users_info import UsersInfo  # dataclass UsersInfo
+
+# === Инициализация клиента и Redis ===
 client = TelegramClient('session_name', api_id, api_hash)
+redis = RedisManager()
 
+# === Локи пользователей для защиты от спама ===
+user_locks = {}
+LOCK_EXPIRATION = 10  # Время жизни локи в секундах
+
+# === Время по Украине ===
+def get_ukraine_time():
+    return datetime.utcnow() + timedelta(hours=3)  # UTC+3
+
+# === Функции работы с Redis ===
+async def has_replied(user_id: str) -> bool:
+    async with redis:
+        record = await redis.load(UsersInfo, key=str(user_id))
+        return record is not None
+
+async def save_replied_user(user_id: str, **kwargs):
+    async with redis:
+        user_record = UsersInfo(
+            user_id=str(user_id),
+            timestamp=get_ukraine_time().isoformat(),
+            **kwargs
+        )
+        await redis.save(user_record, key=str(user_id))
+        print(f"[REDIS] Пользователь {user_id} сохранён.")
+
+async def remove_user_from_redis(user_id: str):
+    async with redis:
+        await redis.delete(UsersInfo, key=str(user_id))
+        print(f"[REDIS] Пользователь {user_id} удалён.")
+
+# === Локи для защиты от спама ===
+async def set_user_lock(user_id: str):
+    user_locks[user_id] = True
+    await asyncio.sleep(LOCK_EXPIRATION)
+    user_locks.pop(user_id, None)
+
+# === Инициализация всех команд бота ===
 async def initialize_commands():
-    """Инициализация всех команд бота"""
-
-    # Подключение архиватора
     await load_ads_command(client)
-
-    # Подключение автоудаления команд
     load_remover(client)
-
-    # Подключение доп команд
     load_proces(client)
-
-    # Подключение комментариев от пользователей
     load_сomment(client)
 
-def load_replied_users():
-    """Загрузка пользователей, которым уже отправлялось приветствие"""
-    try:
-        if os.path.exists(FILE_NAME):
-            with open(FILE_NAME, "r", encoding="utf-8") as file:
-                return {line.split(",")[0].split(":")[1].strip() for line in file}
-    except Exception as e:
-        print(f"Ошибка загрузки пользователей: {e}")
-    return set()
-
-def save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link):
-    """Сохраняет данные нового пользователя"""
-    try:
-        with open(FILE_NAME, "a", encoding="utf-8") as file:
-            file.write(
-                f"ID пользователя: {user_id}, "
-                f"Username: {username}, "
-                f"Имя: {first_name}, "
-                f"Фамилия: {last_name}, "
-                f"Телефон: {phone}, "
-                f"ID чата: {chat_id}, "
-                f"Ссылка: {link}\n"
-            )
-    except Exception as e:
-        print(f"Ошибка сохранения пользователя: {e}")
-
-def remove_user_from_file(user_id):
-    """Удаляет пользователя из файла после команды !start"""
-    try:
-        if os.path.exists(FILE_NAME):
-            with open(FILE_NAME, "r", encoding="utf-8") as file:
-                lines = file.readlines()
-
-            with open(FILE_NAME, "w", encoding="utf-8") as file:
-                for line in lines:
-                    if f"ID пользователя: {user_id}" not in line:
-                        file.write(line)
-    except Exception as e:
-        print(f"Ошибка удаления пользователя: {e}")
-
+# === Основной обработчик сообщений ===
 @client.on(events.NewMessage(incoming=True))
 async def handler(event):
-    """Основной обработчик входящих сообщений"""
     if not event.is_private:
         return
 
     sender = await event.get_sender()
-    if sender is None:
-        print("Ошибка: Не удалось получить отправителя.")
+    if not sender:
         return
 
     user_id = str(sender.id)
     chat_id = event.chat_id
-    phone = sender.phone if sender.phone else "No phone number"
-    username = sender.username if sender.username else "None"
-    first_name = sender.first_name if sender.first_name else "None"
-    last_name = sender.last_name if sender.last_name else "None"
-    link = f"https://t.me/{username}" if username != "None" else "No link"
+    phone = getattr(sender, "phone", None)
+    username = getattr(sender, "username", None)
+    first_name = getattr(sender, "first_name", None)
+    last_name = getattr(sender, "last_name", None)
+    link = f"https://t.me/{username}" if username else None
 
-    replied_users = load_replied_users()
     message_text = event.message.text.strip().lower() if event.message.text else ""
-
-    # Определяем язык пользователя
     lang = await get_user_language(client, user_id, message_text)
 
+    # === Команда сброса статуса (!start) ===
     if message_text == "!start":
-        remove_user_from_file(user_id)
-        replied_users.discard(user_id)
-
-    if user_id not in replied_users:
-        replied_users.add(user_id)
+        await remove_user_from_redis(user_id)
+        user_locks.pop(user_id, None)
+        # Отправляем приветствие после сброса
         try:
             if os.path.exists(VIDEO_FILE):
                 await client.send_file(chat_id, VIDEO_FILE, caption=get_translation("welcome", lang))
             else:
                 await event.reply(get_translation("welcome", lang))
 
-            save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link)
-            print(f"Сохранены данные пользователя: {user_id}, Имя пользователя: {username}, Ссылка: {link}")
-
+            await save_replied_user(
+                user_id=user_id,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone,
+                chat_id=chat_id,
+                link=link
+            )
+            print(f"[INFO] Приветствие отправлено пользователю {user_id} после команды !start")
         except YouBlockedUserError:
-            print(f"Пользователь {user_id} заблокировал бота или бот заблокировал пользователя.")
+            print(f"[WARN] Пользователь {user_id} заблокировал бота.")
         except Exception as e:
-            print(f"Не удалось отправить приветственное сообщение: {e}")
+            print(f"[ERROR] Не удалось отправить приветствие после !start: {e}")
+        return  # После !start больше ничего не делаем
 
+    # === Если есть активная лока — игнорируем спам ===
+    if user_locks.get(user_id):
+        print(f"[SPAM] Игнорируем сообщение пользователя {user_id}")
+        return
+
+    # Устанавливаем локу для текущего пользователя
+    asyncio.create_task(set_user_lock(user_id))
+
+    # === Отправляем приветствие только если пользователь новый (нет в Redis) ===
+    if not await has_replied(user_id):
+        try:
+            if os.path.exists(VIDEO_FILE):
+                await client.send_file(chat_id, VIDEO_FILE, caption=get_translation("welcome", lang))
+            else:
+                await event.reply(get_translation("welcome", lang))
+
+            await save_replied_user(
+                user_id=user_id,
+                username=username,
+                first_name=first_name,
+                last_name=last_name,
+                phone=phone,
+                chat_id=chat_id,
+                link=link
+            )
+            print(f"[INFO] Приветствие отправлено пользователю {user_id}")
+        except YouBlockedUserError:
+            print(f"[WARN] Пользователь {user_id} заблокировал бота.")
+        except Exception as e:
+            print(f"[ERROR] Не удалось отправить приветствие: {e}")
+
+    # === Обработка команд ===
     if message_text.startswith("!"):
         command = message_text.split()[0]
         await handle_command(client, chat_id, user_id, command, message_text)
 
+# === Запуск бота ===
 async def main():
-    """Запуск бота"""
     try:
         await client.start(phone=lambda: phone_number)
-
         if not await client.is_user_authorized():
-            password = input("Enter the two-factor authentication password: ")
+            password = input("Enter 2FA password: ")
             await client.start(password=password)
 
         await initialize_commands()
-
-        print("Bot successfully started.")
+        print("[START] Бот успешно запущен.")
         await client.run_until_disconnected()
     except Exception as e:
-        print(f"Bot failed to start: {e}")
+        print(f"[FATAL] Ошибка запуска бота: {e}")
 
 if __name__ == "__main__":
-    client.loop.run_until_complete(main())
+    asyncio.run(main())
+
