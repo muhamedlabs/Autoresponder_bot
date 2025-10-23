@@ -4,51 +4,54 @@ from ashredis import MISSING
 from BANNED_FILES.config import RedisManager
 from redis_storage.users_contest import UsersContest
 
+# Фиксируем случайность определения языка
 DetectorFactory.seed = 0
 langid_identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
 
+# Инициализация Redis
 redis = RedisManager()
 
 async def get_user_language(client, user_id: str, message_text: str):
     """
-    Визначає мову користувача, зберігає її в Redis
-    та записує перші 5 повідомлень.
+    Определяет язык пользователя, сохраняет его в Redis
+    и записывает первые 5 сообщений.
     """
 
-    # Якщо текст порожній або короткий — вважаємо, що це "ru"
+    # Если текст пустой или слишком короткий — считаем, что язык русский
     if not message_text or len(message_text.strip()) < 3:
         message_text = ""
         lang_code = "ru"
     else:
-        # Пробуємо визначити мову через langdetect
+        # Сначала пробуем определить язык через langdetect
         try:
             detected_lang = detect(message_text)
         except Exception:
             detected_lang = "unknown"
 
-        # Якщо результат неочевидний — дублюємо через langid
+        # Если результат непонятный — проверяем через langid
         if detected_lang not in ["ru", "en", "uk"]:
             detected_lang, _ = langid_identifier.classify(message_text)
 
+        # Если язык русский, английский или украинский — используем его, иначе русский
         lang_code = detected_lang if detected_lang in ["ru", "en", "uk"] else "ru"
 
-    # Завантажуємо запис користувача з Redis
+    # Загружаем запись пользователя из Redis
     async with redis:
         record = await redis.load(UsersContest, key=str(user_id))
 
         if record is None:
-            # Новий користувач → створюємо новий запис
+            # Если пользователь новый — создаём запись
             record = UsersContest(
                 user_id=str(user_id),
                 language=lang_code,
                 first_name=None
             )
         else:
-            # Якщо мова вже є — не оновлюємо її
+            # Если язык ещё не сохранён — обновляем его
             if not record.language:
                 record.language = lang_code
 
-        # Зберігаємо перші 5 повідомлень
+        # Сохраняем первые 5 сообщений
         for i in range(1, 6):
             field_name = f"first_message_{i}"
             current_value = getattr(record, field_name, MISSING)
@@ -56,7 +59,7 @@ async def get_user_language(client, user_id: str, message_text: str):
                 setattr(record, field_name, message_text)
                 break
 
-        # Зберігаємо назад у Redis
+        # Сохраняем запись обратно в Redis
         await redis.save(record, key=str(user_id))
 
     return record.language

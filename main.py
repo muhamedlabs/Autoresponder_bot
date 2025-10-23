@@ -1,18 +1,18 @@
-import os
+import os 
 import asyncio
 from datetime import datetime, timedelta
 from telethon import TelegramClient, events
 from telethon.errors import YouBlockedUserError
 
 from BANNED_FILES.config import phone_number, api_hash, api_id, VIDEO_FILE, RedisManager
-from commands.UserHandler import handle_command
-from language_file.transcribation.UserLanguage import get_user_language
-from extras_command.UserProces import load_proces
-from extras_command.UserRemover import load_remover
-from extras_command.UserNotes import load_сomment
-from language_file.main import get_translation
-from extras_command.ads_command import load_ads_command
-from redis_storage.users_info import UsersInfo  # dataclass UsersInfo
+from commands.UserHandler import handle_command # Загрузка основных команд
+from language_file.transcribation.UserLanguage import get_user_language # Загрузка определения языка
+from extras_command.UserProces import load_proces  # Загрузка доп команд
+from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
+from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
+from language_file.main import get_translation  # Загрузка транскрипции
+from extras_command.ads_command import load_ads_command # Загрузка архиватора
+from redis_storage.users_info import UsersInfo  # Класс данных UsersInfo
 
 # === Инициализация клиента и Redis ===
 client = TelegramClient('session_name', api_id, api_hash)
@@ -40,12 +40,11 @@ async def save_replied_user(user_id: str, **kwargs):
             **kwargs
         )
         await redis.save(user_record, key=str(user_id))
-        print(f"[REDIS] Пользователь {user_id} сохранён.")
+        print(f"Пользователь {user_id} сохранён")
 
 async def remove_user_from_redis(user_id: str):
     async with redis:
         await redis.delete(UsersInfo, key=str(user_id))
-        print(f"[REDIS] Пользователь {user_id} удалён.")
 
 # === Локи для защиты от спама ===
 async def set_user_lock(user_id: str):
@@ -55,9 +54,17 @@ async def set_user_lock(user_id: str):
 
 # === Инициализация всех команд бота ===
 async def initialize_commands():
+
+    # Подключение архиватора
     await load_ads_command(client)
+
+     # Подключение автоудаления команд
     load_remover(client)
+
+    # Подключение доп команд
     load_proces(client)
+
+    # Подключение комментариев от пользователей
     load_сomment(client)
 
 # === Основной обработчик сообщений ===
@@ -104,13 +111,10 @@ async def handler(event):
             print(f"[INFO] Приветствие отправлено пользователю {user_id} после команды !start")
         except YouBlockedUserError:
             print(f"[WARN] Пользователь {user_id} заблокировал бота.")
-        except Exception as e:
-            print(f"[ERROR] Не удалось отправить приветствие после !start: {e}")
-        return  # После !start больше ничего не делаем
+        return
 
     # === Если есть активная лока — игнорируем спам ===
     if user_locks.get(user_id):
-        print(f"[SPAM] Игнорируем сообщение пользователя {user_id}")
         return
 
     # Устанавливаем локу для текущего пользователя
@@ -133,11 +137,9 @@ async def handler(event):
                 chat_id=chat_id,
                 link=link
             )
-            print(f"[INFO] Приветствие отправлено пользователю {user_id}")
+            print(f"Приветствие отправлено пользователю {user_id}")
         except YouBlockedUserError:
-            print(f"[WARN] Пользователь {user_id} заблокировал бота.")
-        except Exception as e:
-            print(f"[ERROR] Не удалось отправить приветствие: {e}")
+            print(f"Пользователь {user_id} заблокировал бота.")
 
     # === Обработка команд ===
     if message_text.startswith("!"):
@@ -149,15 +151,14 @@ async def main():
     try:
         await client.start(phone=lambda: phone_number)
         if not await client.is_user_authorized():
-            password = input("Enter 2FA password: ")
+            password = input("Enter the two-factor authentication password: ")
             await client.start(password=password)
 
         await initialize_commands()
-        print("[START] Бот успешно запущен.")
+        print("Bot successfully started.")
         await client.run_until_disconnected()
     except Exception as e:
-        print(f"[FATAL] Ошибка запуска бота: {e}")
+        print(f"[Bot failed to start: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
-
