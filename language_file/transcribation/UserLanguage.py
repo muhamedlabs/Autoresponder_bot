@@ -1,60 +1,62 @@
-import json
-import os
 from langdetect import detect, DetectorFactory
 from langid.langid import LanguageIdentifier, model
-from BANNED_FILES.config import DATA_FILE
+from ashredis import MISSING
+from BANNED_FILES.config import RedisManager
+from redis_storage.users_contest import UsersContest
 
-DetectorFactory.seed = 0  # Фиксируем seed для langdetect
-langid_identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)  # Инициализация langid
+DetectorFactory.seed = 0
+langid_identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
 
+redis = RedisManager()
 
-# Загружаем сохранённые данные
-def load_user_data():
-    if os.path.exists(DATA_FILE):
+async def get_user_language(client, user_id: str, message_text: str):
+    """
+    Визначає мову користувача, зберігає її в Redis
+    та записує перші 5 повідомлень.
+    """
+
+    # Якщо текст порожній або короткий — вважаємо, що це "ru"
+    if not message_text or len(message_text.strip()) < 3:
+        message_text = ""
+        lang_code = "ru"
+    else:
+        # Пробуємо визначити мову через langdetect
         try:
-            with open(DATA_FILE, "r", encoding="utf-8") as file:
-                data = file.read().strip()
-                return json.loads(data) if data else {}
-        except json.JSONDecodeError:
-            print("Ошибка: повреждён файл user_languages.json. Пересоздаю.")
-            return {}
-    return {}
+            detected_lang = detect(message_text)
+        except Exception:
+            detected_lang = "unknown"
 
+        # Якщо результат неочевидний — дублюємо через langid
+        if detected_lang not in ["ru", "en", "uk"]:
+            detected_lang, _ = langid_identifier.classify(message_text)
 
-# Сохраняем данные
-def save_user_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
+        lang_code = detected_lang if detected_lang in ["ru", "en", "uk"] else "ru"
 
+    # Завантажуємо запис користувача з Redis
+    async with redis:
+        record = await redis.load(UsersContest, key=str(user_id))
 
-async def get_user_language(client, user_id, message_text):
-    """Определяет язык пользователя только по тексту."""
+        if record is None:
+            # Новий користувач → створюємо новий запис
+            record = UsersContest(
+                user_id=str(user_id),
+                language=lang_code,
+                first_name=None
+            )
+        else:
+            # Якщо мова вже є — не оновлюємо її
+            if not record.language:
+                record.language = lang_code
 
-    user_data = load_user_data()
+        # Зберігаємо перші 5 повідомлень
+        for i in range(1, 6):
+            field_name = f"first_message_{i}"
+            current_value = getattr(record, field_name, MISSING)
+            if current_value in [None, "", MISSING]:
+                setattr(record, field_name, message_text)
+                break
 
-    # Если язык уже определён — используем его
-    if str(user_id) in user_data:
-        return user_data[str(user_id)]["language"]
+        # Зберігаємо назад у Redis
+        await redis.save(record, key=str(user_id))
 
-    # Проверка длины сообщения
-    if not message_text or len(message_text) < 3:
-        return "ru"  # Если текст слишком короткий, ставим русский
-
-    # Определение языка с langdetect
-    try:
-        detected_lang = detect(message_text)
-    except:
-        detected_lang = "unknown"
-
-    # Определение языка с langid, если первый метод дал "unknown"
-    if detected_lang not in ["ru", "en", "uk"]:
-        detected_lang, _ = langid_identifier.classify(message_text)
-
-    # Если язык неизвестен — ставим русский
-    lang_code = detected_lang if detected_lang in ["ru", "en", "uk"] else "ru"
-
-    # Сохраняем язык и первое сообщение
-    user_data[str(user_id)] = {"language": lang_code, "first_message": message_text}
-    save_user_data(user_data)
-
-    return lang_code
+    return record.language
