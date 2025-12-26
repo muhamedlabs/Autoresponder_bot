@@ -1,74 +1,66 @@
+import os 
 import random
+import re
 from telethon import events
 from telethon.errors.rpcerrorlist import YouBlockedUserError, UserIsBlockedError, PeerIdInvalidError
-from BANNED_FILES.config import RedisManager, BATTLE_GIF
-from redis_storage.users_info import UsersInfo
+from BANNED_FILES.config import FILE_NAME, BATTLE_GIF
 from language_file.transcribation.MemberLanguage import get_user_language
 from language_file.extras_command.battle import get_translation
 
-redis = RedisManager()
-
-async def load_chat_ids_from_redis():
-    """Загружает все уникальные chat_id из Redis по UsersInfo."""
-    chat_ids = set()
-    async with redis:
-        records = await redis.load_many(UsersInfo, key="*")
-        for record in records:
-            if record.chat_id:
-                chat_ids.add(int(record.chat_id))
-    return list(chat_ids)
-
-async def send_battle_messages(client):
-    """Отправляет сообщение о войне в 10 доступных чатах."""
-    chat_ids = await load_chat_ids_from_redis()
+# Функция загрузки списка чатов
+def load_chat_ids():
+    if not os.path.exists(FILE_NAME):
+        return []
     
-    if not chat_ids:
-        return
+    with open(FILE_NAME, "r", encoding="utf-8") as file:
+        content = file.read()
 
-    if not BATTLE_GIF:
-        return
+    chat_ids = re.findall(r"ID чата: (\d+)", content)  # Извлекаем ID чатов
+    return list(map(int, chat_ids))  # Преобразуем в список чисел
 
-    winners_sent = 0
-    tried_chats = set()
+async def send_winner_messages(client):
+    """Отправляет сообщение о войне в 10 случайных чатов."""
+    chat_ids = load_chat_ids()
+    
+    if len(chat_ids) < 10:
+        return  # Прекращаем, если чатов меньше 10
 
-    while winners_sent < 10 and len(tried_chats) < len(chat_ids):
-        chat_id = random.choice(chat_ids)
-        if chat_id in tried_chats:
-            continue
-        tried_chats.add(chat_id)
+    selected_chats = random.sample(chat_ids, 10)  # Выбираем 10 случайных чатов
 
+    if not os.path.exists(BATTLE_GIF):
+        return  # Если нет гифки, ничего не делаем
+
+    for chat_id in selected_chats:
         try:
-            entity = await client.get_entity(chat_id)
-
-            # Ищем первого живого участника
-            recipient_id = None
-            async for user in client.iter_participants(entity):
-                if not user.bot:
+            # Находим любого участника чата, кроме бота
+            async for user in client.iter_participants(chat_id):
+                if not user.bot:  # Берём первого живого участника
                     recipient_id = user.id
                     break
+            else:
+                continue  # Если нет участников, пропускаем чат
 
-            if recipient_id is None:
-                continue
-
-            # Определяем язык пользователя
-            lang = await get_user_language(recipient_id) or "ru"
+            # Получаем язык именно этого пользователя
+            lang = get_user_language(recipient_id) or "ru"  
             batl_messages = get_translation("battle_messages", lang)
-            if not batl_messages or not isinstance(batl_messages, list):
-                continue
 
-            random_text = random.choice(batl_messages)
-            await client.send_file(entity, BATTLE_GIF, caption=random_text)
-            winners_sent += 1
-            print(f"Команда 'СхваткаPro' : отправлено сообщение в чат {chat_id}")
+            if not batl_messages or not isinstance(batl_messages, list):
+                continue  # Пропускаем, если нет перевода
+
+            random_text = random.choice(batl_messages)  # Берём случайное сообщение
+            
+            await client.send_file(chat_id, BATTLE_GIF, caption=random_text)
 
         except (YouBlockedUserError, UserIsBlockedError, PeerIdInvalidError):
-            continue
+            continue  # Пропускаем недоступные чаты
         except Exception:
-            continue
+            continue  # Игнорируем любые другие ошибки
 
 def register_proces(client):
-    """Регистрирует триггер на команду 'СхваткаPro' для user-bot."""
-
-    @client.on(events.NewMessage(outgoing=True, pattern=r"^СхваткаPro$"))
-    async def check_battle_trigger(event):
-        await send_battle_messages(client)
+    """Регистрирует триггер на команду 'СхваткаPro'."""
+    
+    @client.on(events.NewMessage(outgoing=True))
+    async def check_raffle_trigger(event):
+        """Запускает розыгрыш, если бот отправляет именно 'СхваткаPro' (с учётом регистра)."""
+        if event.message.text.strip() == "СхваткаPro":  # Проверяем точное совпадение
+            await send_winner_messages(client)

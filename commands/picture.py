@@ -1,5 +1,5 @@
 import requests
-from BANNED_FILES.config import unsplash_developer
+from BANNED_FILES.config import UNSPLASH_ACCESS_KEY
 from language_file.transcribation.UserLanguage import get_user_language
 from language_file.commands.picture import get_translation
 
@@ -13,7 +13,7 @@ async def handle_picture(client, chat_id, user_id, message_text):
     url = "https://api.unsplash.com/photos/random"
     query_params = {
         "query": "architecture,nature,trains",  # Темы: архитектура, природа, поезда
-        "client_id": unsplash_developer,
+        "client_id": UNSPLASH_ACCESS_KEY,
         "orientation": "landscape",  # Горизонтальная ориентация
     }
 
