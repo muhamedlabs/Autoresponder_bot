@@ -5,8 +5,10 @@ import langid
 import zipfile
 import tempfile
 from datetime import datetime
+
 from telethon import TelegramClient, events, types
-from telethon.errors import YouBlockedUserError
+from telethon.errors import YouBlockedUserError, SessionPasswordNeededError
+
 from BANNED_FILES.config import phone_number, api_hash, api_id, FILE_NAME, VIDEO_FILE
 from commands.UserHandler import handle_command  # Загрузка основных команд
 from language_file.transcribation.UserLanguage import get_user_language  # Загрузка определения языка
@@ -14,10 +16,12 @@ from extras_command.UserProces import load_proces  # Загрузка доп к�
 from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
 from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
 from language_file.main import get_translation  # Загрузка транскрипции
-from extras_command.ads_command import load_ads_command # Загрузка архиватора
+from extras_command.ads_command import load_ads_command  # Загрузка архиватора
+
 
 # Инициализация клиента
-client = TelegramClient('session_name', api_id, api_hash)
+client = TelegramClient("session_name", api_id, api_hash)
+
 
 async def initialize_commands():
     """Инициализация всех команд бота"""
@@ -34,6 +38,7 @@ async def initialize_commands():
     # Подключение комментариев от пользователей
     load_сomment(client)
 
+
 def load_replied_users():
     """Загрузка пользователей, которым уже отправлялось приветствие"""
     try:
@@ -43,6 +48,7 @@ def load_replied_users():
     except Exception as e:
         print(f"Ошибка загрузки пользователей: {e}")
     return set()
+
 
 def save_replied_user(user_id, username, first_name, last_name, phone, chat_id, link):
     """Сохраняет данные нового пользователя"""
@@ -60,6 +66,7 @@ def save_replied_user(user_id, username, first_name, last_name, phone, chat_id, 
     except Exception as e:
         print(f"Ошибка сохранения пользователя: {e}")
 
+
 def remove_user_from_file(user_id):
     """Удаляет пользователя из файла после команды !start"""
     try:
@@ -73,6 +80,7 @@ def remove_user_from_file(user_id):
                         file.write(line)
     except Exception as e:
         print(f"Ошибка удаления пользователя: {e}")
+
 
 @client.on(events.NewMessage(incoming=True))
 async def handler(event):
@@ -104,10 +112,13 @@ async def handler(event):
         replied_users.discard(user_id)
 
     if user_id not in replied_users:
-        replied_users.add(user_id)
         try:
             if os.path.exists(VIDEO_FILE):
-                await client.send_file(chat_id, VIDEO_FILE, caption=get_translation("welcome", lang))
+                await client.send_file(
+                    chat_id,
+                    VIDEO_FILE,
+                    caption=get_translation("welcome", lang)
+                )
             else:
                 await event.reply(get_translation("welcome", lang))
 
@@ -123,21 +134,48 @@ async def handler(event):
         command = message_text.split()[0]
         await handle_command(client, chat_id, user_id, command, message_text)
 
+
 async def main():
     """Запуск бота"""
     try:
-        await client.start(phone=lambda: phone_number)
+        await client.connect()
 
-        if not await client.is_user_authorized():
-            password = input("Enter the two-factor authentication password: ")
-            await client.start(password=password)
+        print("Checking authorization...")
+        # Авторизация
+        while not await client.is_user_authorized():
+            try:
+                await client.send_code_request(phone_number)
+                print("Code request sent. Waiting for code...")
+                code_file = "code.txt"
+                if os.path.exists(code_file):
+                    with open(code_file, "r") as f:
+                        code = f.read().strip()
+                    os.remove(code_file)  # Удаляем файл после чтения
+                    print(f"Code read from file: {code}")
+                else:
+                    code = await asyncio.to_thread(input, "Enter Telegram code: ")
+                    code = code.strip()
+
+                print("Signing in...")
+                await client.sign_in(phone_number, code)
+                print("Successfully signed in.")
+            except SessionPasswordNeededError:
+                password = await asyncio.to_thread(input, "Enter 2FA password: ")
+                password = password.strip()
+                await client.sign_in(password=password)
+                print("Successfully signed in with 2FA.")
+            except Exception as e:
+                print(f"Authorization failed: {e}. Retrying...")
+                continue
 
         await initialize_commands()
 
         print("Bot successfully started.")
         await client.run_until_disconnected()
+
     except Exception as e:
         print(f"Bot failed to start: {e}")
+
 
 if __name__ == "__main__":
     client.loop.run_until_complete(main())
