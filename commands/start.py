@@ -50,7 +50,6 @@ async def remove_user_from_redis(user_id: str):
     current_time = format_ukraine_time()
     async with redis:
         await redis.delete(UsersInfo, key=str(user_id))
-        print(f"Пользователь {user_id} удалён из Redis")
 
 # === Локи для защиты от спама ===
 async def set_user_lock(user_id: str):
@@ -113,7 +112,6 @@ async def extract_user_info(event, client):
     user_info['lang'] = await get_user_language(client, user_info['user_id'], user_info['message_text'])
     user_info['message_text_lower'] = user_info['message_text'].lower()
     
-    print(f"Информация о пользователе {user_info['user_id']} извлечена в {format_ukraine_time()}")
     return user_info
 
 async def handle_welcome_message(client, user_info, is_reset=False):
@@ -162,7 +160,6 @@ async def handle_user_reset(user_id: str):
     current_time = format_ukraine_time()
     await remove_user_from_redis(user_id)
     user_locks.pop(user_id, None)
-    print(f"Пользователь {user_id} сброшен")
 
 def is_user_locked(user_id: str) -> bool:
     """Проверяет, есть ли активная лока у пользователя"""

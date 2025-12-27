@@ -94,7 +94,7 @@ async def main():
 
         await initialize_commands()
 
-        print("Bot successfully started.")
+        print("Bot successfully started. All systems are normal, neurons are activated!")
         await client.run_until_disconnected()
 
     except Exception as e:
