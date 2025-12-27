@@ -9,8 +9,7 @@ from extras_command.UserProces import load_proces  # Загрузка доп к�
 from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
 from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
 from extras_command.ads_command import load_ads_command # Загрузка архиватора
-from commands.start import ( extract_user_info, handle_welcome_message, handle_user_reset, 
-                            is_user_locked, set_user_lock, has_replied, user_locks) # Загрузка Redis протокола для старта
+from commands.start import extract_user_info, handle_welcome_message, handle_user_reset, is_user_locked, set_user_lock, has_replied, user_locks # Загрузка Redis протокола для старта
 
 # Инициализация клиента
 client = TelegramClient("session_name", api_id, api_hash)
