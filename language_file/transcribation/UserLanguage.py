@@ -1,60 +1,65 @@
-import json
-import os
 from langdetect import detect, DetectorFactory
 from langid.langid import LanguageIdentifier, model
-from BANNED_FILES.config import DATA_FILE
+from ashredis import MISSING
+from BANNED_FILES.config import RedisManager
+from redis_storage.users_contest import UsersContest
 
-DetectorFactory.seed = 0  # Фиксируем seed для langdetect
-langid_identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)  # Инициализация langid
+# Фиксируем случайность определения языка
+DetectorFactory.seed = 0
+langid_identifier = LanguageIdentifier.from_modelstring(model, norm_probs=True)
 
+# Инициализация Redis
+redis = RedisManager()
 
-# Загружаем сохранённые данные
-def load_user_data():
-    if os.path.exists(DATA_FILE):
+async def get_user_language(client, user_id: str, message_text: str):
+    """
+    Определяет язык пользователя, сохраняет его в Redis
+    и записывает первые 5 сообщений.
+    """
+
+    # Если текст пустой или слишком короткий — считаем, что язык русский
+    if not message_text or len(message_text.strip()) < 3:
+        message_text = ""
+        lang_code = "ru"
+    else:
+        # Сначала пробуем определить язык через langdetect
         try:
-            with open(DATA_FILE, "r", encoding="utf-8") as file:
-                data = file.read().strip()
-                return json.loads(data) if data else {}
-        except json.JSONDecodeError:
-            print("Ошибка: повреждён файл user_languages.json. Пересоздаю.")
-            return {}
-    return {}
+            detected_lang = detect(message_text)
+        except Exception:
+            detected_lang = "unknown"
 
+        # Если результат непонятный — проверяем через langid
+        if detected_lang not in ["ru", "en", "uk"]:
+            detected_lang, _ = langid_identifier.classify(message_text)
 
-# Сохраняем данные
-def save_user_data(data):
-    with open(DATA_FILE, "w", encoding="utf-8") as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
+        # Если язык русский, английский или украинский — используем его, иначе русский
+        lang_code = detected_lang if detected_lang in ["ru", "en", "uk"] else "ru"
 
+    # Загружаем запись пользователя из Redis
+    async with redis:
+        record = await redis.load(UsersContest, key=str(user_id))
 
-async def get_user_language(client, user_id, message_text):
-    """Определяет язык пользователя только по тексту."""
+        if record is None:
+            # Если пользователь новый — создаём запись
+            record = UsersContest(
+                user_id=str(user_id),
+                language=lang_code,
+                first_name=None
+            )
+        else:
+            # Если язык ещё не сохранён — обновляем его
+            if not record.language:
+                record.language = lang_code
 
-    user_data = load_user_data()
+        # Сохраняем первые 5 сообщений
+        for i in range(1, 6):
+            field_name = f"first_message_{i}"
+            current_value = getattr(record, field_name, MISSING)
+            if current_value in [None, "", MISSING]:
+                setattr(record, field_name, message_text)
+                break
 
-    # Если язык уже определён — используем его
-    if str(user_id) in user_data:
-        return user_data[str(user_id)]["language"]
+        # Сохраняем запись обратно в Redis
+        await redis.save(record, key=str(user_id))
 
-    # Проверка длины сообщения
-    if not message_text or len(message_text) < 3:
-        return "ru"  # Если текст слишком короткий, ставим русский
-
-    # Определение языка с langdetect
-    try:
-        detected_lang = detect(message_text)
-    except:
-        detected_lang = "unknown"
-
-    # Определение языка с langid, если первый метод дал "unknown"
-    if detected_lang not in ["ru", "en", "uk"]:
-        detected_lang, _ = langid_identifier.classify(message_text)
-
-    # Если язык неизвестен — ставим русский
-    lang_code = detected_lang if detected_lang in ["ru", "en", "uk"] else "ru"
-
-    # Сохраняем язык и первое сообщение
-    user_data[str(user_id)] = {"language": lang_code, "first_message": message_text}
-    save_user_data(user_data)
-
-    return lang_code
+    return record.language

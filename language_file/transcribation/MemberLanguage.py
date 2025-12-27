@@ -1,38 +1,31 @@
-import json
-import os
-from BANNED_FILES.config import DATA_FILE
+from BANNED_FILES.config import RedisManager
+from redis_storage.users_contest import UsersContest
 
-def get_user_language(user_id):
+redis = RedisManager()
+
+async def get_user_language(user_id: str) -> str:
     """
-    Возвращает язык пользователя по его ID из файла user_languages.json.
-    
-    :param user_id: ID пользователя (должен быть строкой).
-    :return: Язык пользователя (по умолчанию "ru").
+    Возвращает язык пользователя по его ID из Redis.
+    Если пользователь не найден — возвращает "ru".
     """
+
     try:
-        if not os.path.exists(DATA_FILE):
-            print(f"Файл {DATA_FILE} не найден!")
-            return "ru"
+        async with redis:
+            record = await redis.load(UsersContest, key=str(user_id))
 
-        with open(DATA_FILE, "r", encoding="utf-8") as file:
-            try:
-                user_data = json.load(file)
-            except json.JSONDecodeError as e:
-                print(f"Ошибка JSON: {e}")
+            if record is None:
+                print(f"Пользователь {user_id} не найден в Redis. Используем 'ru'.")
                 return "ru"
 
-        # **Добавляем защиту**
-        if str(user_id) not in user_data:
-            print(f"[DEBUG] Пользователь {user_id} не найден в базе. Используем 'ru'.")
-            return "ru"
+            language = getattr(record, "language", None)
+            if not language:
+                print(f"У пользователя {user_id} язык не указан. Используем 'ru'.")
+                return "ru"
 
-        return user_data[str(user_id)].get("language", "ru")
+            print(f"Язык пользователя {user_id}: {language}")
+            return language
 
-    except UnicodeEncodeError as e:
-        print(f"Ошибка кодировки файла {DATA_FILE}: {e}")
-        return "ru"
     except Exception as e:
-        print(f"Ошибка при чтении файла {DATA_FILE}: {e}")
+        print(f"Не удалось получить язык пользователя {user_id}: {e}")
         return "ru"
-
-
+    
