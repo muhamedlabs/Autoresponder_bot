@@ -1,5 +1,6 @@
 import os
 import asyncio
+import sys
 from telethon import TelegramClient, events
 from telethon.errors import SessionPasswordNeededError
 
@@ -8,8 +9,9 @@ from commands.UserHandler import handle_command  # Загрузка основн
 from extras_command.UserProces import load_proces  # Загрузка доп команд
 from extras_command.UserRemover import load_remover  # Загрузка автоудаления команд
 from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
-from extras_command.ads_command import load_ads_command # Загрузка архиватора
-from commands.start import extract_user_info, handle_welcome_message, handle_user_reset, is_user_locked, set_user_lock, has_replied, user_locks # Загрузка Redis протокола для старта
+from further_command.ads_command import load_ads_command # Загрузка архиватора
+from commands.start import extract_user_info, handle_welcome_message, handle_user_reset, is_user_locked, set_user_lock, has_replied  # Загрузка Redis протокола для старта
+from further_command.tg_command import setup_console_logger, get_console_capture # Загрузка логгера консоли
 
 # Инициализация клиента
 client = TelegramClient("session_name", api_id, api_hash)
@@ -60,45 +62,52 @@ async def handler(event):
                            command, user_info['message_text_lower'])
 
 async def main():
+
+    # Инициализируем Telegram-бота и логгера
+    console_logger = get_console_capture()
+
+    await setup_console_logger()
+
+    sys.stdout = console_logger
+    sys.stderr = console_logger
+
+    
+ 
     """Запуск бота"""
-    try:
-        await client.connect()
+    await client.connect()
+    
+    print("Checking authorization...")
 
-        print("Checking authorization...")
-        # Авторизация
-        while not await client.is_user_authorized():
-            try:
-                await client.send_code_request(phone_number)
-                print("Code request sent. Waiting for code...")
-                code_file = "code.txt"
-                if os.path.exists(code_file):
-                    with open(code_file, "r") as f:
-                        code = f.read().strip()
-                    os.remove(code_file)
-                    print(f"Code read from file: {code}")
-                else:
-                    code = await asyncio.to_thread(input, "Enter Telegram code: ")
-                    code = code.strip()
+    # Авторизация
+    while not await client.is_user_authorized():
+        try:
+            await client.send_code_request(phone_number)
+            print("Code request sent")
 
-                print("Signing in...")
-                await client.sign_in(phone_number, code)
-                print("Successfully signed in.")
-            except SessionPasswordNeededError:
-                password = await asyncio.to_thread(input, "Enter 2FA password: ")
-                password = password.strip()
-                await client.sign_in(password=password)
-                print("Successfully signed in with 2FA.")
-            except Exception as e:
-                print(f"Authorization failed: {e}. Retrying...")
-                continue
+            if os.path.exists("code.txt"):
+                with open("code.txt", "r") as f:
+                    code = f.read().strip()
+                os.remove("code.txt")
+            else:
+                code = await asyncio.to_thread(input, "Enter Telegram code: ")
 
-        await initialize_commands()
+            await client.sign_in(phone_number, code)
+            print("Authorization successful")
 
-        print("Bot successfully started. All systems are normal, neurons are activated!")
-        await client.run_until_disconnected()
+        except SessionPasswordNeededError:
+            password = await asyncio.to_thread(input, "Enter 2FA password: ")
+            await client.sign_in(password=password)
+            print("2FA successful")
 
-    except Exception as e:
-        print(f"Bot failed to start: {e}")
+        except Exception as e:
+            print(f"Authorization error: {e}")
+            await asyncio.sleep(2)
+
+    await initialize_commands()
+
+    print("Bot successfully started. All systems are normal, neurons are activated!")
+    await client.run_until_disconnected()
+
 
 if __name__ == "__main__":
     client.loop.run_until_complete(main())
