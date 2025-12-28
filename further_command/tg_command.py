@@ -12,7 +12,7 @@ class ConsoleToTelegram:
         self.initialized = False
 
         # Пропуск первых сообщений
-        self._messages_to_skip = 3
+        self._messages_to_skip = 2
         self._skipped = 0
 
         # Задержка старта
@@ -39,7 +39,6 @@ class ConsoleToTelegram:
 
                     parse_mode="Markdown"
                 )
-                print("Startup GIF sent to Telegram")
 
             except Exception as e:
                 # Не фатально
