@@ -12,6 +12,7 @@ from extras_command.UserNotes import load_сomment  # Загрузка комм�
 from further_command.ads_command import load_ads_command # Загрузка архиватора
 from commands.start import extract_user_info, handle_welcome_message, handle_user_reset, is_user_locked, set_user_lock, has_replied  # Загрузка Redis протокола для старта
 from further_command.tg_command import setup_console_logger, get_console_capture # Загрузка логгера консоли
+from further_command.bot_command import start_mini_bot  # Загрузка мини-бота
 
 # Инициализация клиента
 client = TelegramClient("session_name", api_id, api_hash)
@@ -71,9 +72,10 @@ async def main():
     sys.stdout = console_logger
     sys.stderr = console_logger
 
-    
+    # Запуск мини-бота
+    asyncio.create_task(start_mini_bot())
  
-    """Запуск бота"""
+    #З апуск бота
     await client.connect()
     
     print("Checking authorization...")
