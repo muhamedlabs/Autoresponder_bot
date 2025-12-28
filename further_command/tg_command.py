@@ -26,14 +26,14 @@ class ConsoleToTelegram:
             await self.bot.get_me()
             self.initialized = True
 
-            # GIF старт и сообщения
+            # GIF старт и сообщение
             await self.bot.send_animation(
                 chat_id=TG_CHANNEL_ID,
                 animation=START_GIF,
                 caption=(
                     "🌌 **Console Activated!**\n\n"
-                    "Логи проснулись и готовы к работе. Также нейроны прогрелись, мозг сети активирован.\n"
-                    "Пропускаем первые 2 сообщения, чтобы ничего не шумело.\n\n"
+                    "Логи проснулись и готовы к работе. Нейроны прогрелись, мозг сети активирован.\n"
+                    "Пропускаем первые 3 сообщения, чтобы ничего не шумело.\n\n"
                     "Канал готов ловить сигналы из консоли в реальном времени! ⚡"
                 ),
                 parse_mode="Markdown"
@@ -41,10 +41,10 @@ class ConsoleToTelegram:
 
             # Таймер задержки запускаем всегда
             asyncio.create_task(self._delayed_flush())
-
             return True
 
         except Exception as e:
+            # Если не удалось подключиться к боту, выводим в консоль
             self.original_stdout.write(f"[ConsoleLogger] init failed: {e}\n")
             return False
 
@@ -65,10 +65,7 @@ class ConsoleToTelegram:
         # Всегда пишем в обычную консоль
         self.original_stdout.write(text)
 
-        if not self.initialized:
-            return
-
-        if not text.strip():
+        if not self.initialized or not text.strip():
             return
 
         # Пропуск первых сообщений
