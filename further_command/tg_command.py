@@ -12,7 +12,7 @@ class ConsoleToTelegram:
         self.initialized = False
 
         # Пропуск первых сообщений
-        self._messages_to_skip = 2
+        self._messages_to_skip = 3
         self._skipped = 0
 
         # Задержка старта
@@ -27,26 +27,19 @@ class ConsoleToTelegram:
             self.initialized = True
 
             # GIF старт и сообщения
-            try:
-                await self.bot.send_animation(
-                    chat_id=TG_CHANNEL_ID,
-                    animation=START_GIF,
-                    caption=(
-                            "🌌 **Console Activated!**\n\n"
-                            "Логи проснулись и готовы к работе. Также нейроны прогрелись, мозг сети активирован. Ну й пропускаем первые 3 сообщения, чтобы ничего не шумело.\n\n"
-                            "Канал готов ловить сигналы из консоли в реальном времени, И пусть данные текут, как электрические искры!"
-                            ),
+            await self.bot.send_animation(
+                chat_id=TG_CHANNEL_ID,
+                animation=START_GIF,
+                caption=(
+                    "🌌 **Console Activated!**\n\n"
+                    "Логи проснулись и готовы к работе. Также нейроны прогрелись, мозг сети активирован.\n"
+                    "Пропускаем первые 2 сообщения, чтобы ничего не шумело.\n\n"
+                    "Канал готов ловить сигналы из консоли в реальном времени! ⚡"
+                ),
+                parse_mode="Markdown"
+            )
 
-                    parse_mode="Markdown"
-                )
-
-            except Exception as e:
-                # Не фатально
-                self.original_stdout.write(
-                    f"[ConsoleLogger] startup GIF warning: {e}\n"
-                )
-
-            # Таймер задержки запуска
+            # Таймер задержки запускаем всегда
             asyncio.create_task(self._delayed_flush())
 
             return True
@@ -57,7 +50,6 @@ class ConsoleToTelegram:
 
     async def _delayed_flush(self):
         await asyncio.sleep(self._delay_seconds)
-
         self._delay_active = False
 
         if not self._buffer:
@@ -70,7 +62,7 @@ class ConsoleToTelegram:
         self._buffer.clear()
 
     def write(self, text):
-        # всегда пишем в обычную консоль
+        # Всегда пишем в обычную консоль
         self.original_stdout.write(text)
 
         if not self.initialized:
@@ -84,7 +76,7 @@ class ConsoleToTelegram:
             self._skipped += 1
             return
 
-        # Если задержка активна — буферизуем
+        # Буферизация, если задержка активна
         if self._delay_active:
             self._buffer.append(text)
             return
@@ -105,25 +97,20 @@ class ConsoleToTelegram:
             if not clean:
                 return
 
+            # Разбиваем слишком длинные сообщения
             if len(clean) > 4000:
                 parts = [clean[i:i + 4000] for i in range(0, len(clean), 4000)]
                 for part in parts:
-                    await self.bot.send_message(
-                        chat_id=TG_CHANNEL_ID,
-                        text=part
-                    )
+                    await self.bot.send_message(chat_id=TG_CHANNEL_ID, text=part)
                     await asyncio.sleep(0.05)
             else:
-                await self.bot.send_message(
-                    chat_id=TG_CHANNEL_ID,
-                    text=clean
-                )
+                await self.bot.send_message(chat_id=TG_CHANNEL_ID, text=clean)
 
         except Exception as e:
             self.original_stdout.write(f"[ConsoleLogger] send failed: {e}\n")
 
 
-# Один глобальный экземпляр
+# Глобальный экземпляр
 _console_logger: ConsoleToTelegram | None = None
 
 

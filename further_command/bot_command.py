@@ -1,4 +1,3 @@
-# further_command/bot_command.py
 import asyncio
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
@@ -30,7 +29,7 @@ async def start_mini_bot():
 
     await app.initialize()       # Инициализация приложения
     await app.start()            # Старт бота
-    print("[MiniBot] Started async")
+    print("MiniBot Started async")
 
     # Запуск polling без блокировки
     asyncio.create_task(app.updater.start_polling())
