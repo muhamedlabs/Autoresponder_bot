@@ -11,8 +11,8 @@ from extras_command.UserRemover import load_remover  # Загрузка авто
 from extras_command.UserNotes import load_сomment  # Загрузка комментариев от пользователей
 from further_command.ads_command import load_ads_command # Загрузка архиватора
 from commands.start import extract_user_info, handle_welcome_message, handle_user_reset, is_user_locked, set_user_lock, has_replied  # Загрузка Redis протокола для старта
-from further_command.tg_command import setup_console_logger, get_console_capture # Загрузка логгера консоли
-from further_command.bot_command import start_mini_bot  # Загрузка мини-бота
+from further_command.tg_console import setup_console_logger, get_console_capture # Загрузка логгера консоли
+from further_command.tg_bots.app import start_mini_bot  # Загрузка мини-бота
 
 # Инициализация клиента
 client = TelegramClient("session_name", api_id, api_hash)
