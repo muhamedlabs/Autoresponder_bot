@@ -1,6 +1,7 @@
 import sys
 import asyncio
 from telegram import Bot
+from telegram.helpers import escape_markdown
 from BANNED_FILES.config import TG_CHANNEL_ID, telegram_bots, START_GIF
 
 
@@ -26,25 +27,24 @@ class ConsoleToTelegram:
             await self.bot.get_me()
             self.initialized = True
 
-            # GIF старт и сообщение
+            # Стартовое сообщение
             await self.bot.send_animation(
                 chat_id=TG_CHANNEL_ID,
                 animation=START_GIF,
                 caption=(
                     "🌌 **Console Activated!**\n\n"
-                    "Логи проснулись и готовы к работе. Нейроны прогрелись, мозг сети активирован.\n"
-                    "Пропускаем первые 3 сообщения, чтобы ничего не шумело.\n\n"
-                    "Канал готов ловить сигналы из консоли в реальном времени! ⚡"
+                    "Дух отточен, как клинок. Сознание чисто, как вода в горном ручье после дождя. "
+                    "Три первых шепота ветра пропущу — чтобы услышать истинный голос задачи за суетой.\n\n"
+                    "Канал связи **открыт**. Готов ловить импульсы из консоли в реальном потоке. "
+                    "Пусть **данные** струятся, словно молнии в грозовом небе самурайской решимости!"
                 ),
                 parse_mode="Markdown"
             )
 
-            # Таймер задержки запускаем всегда
             asyncio.create_task(self._delayed_flush())
             return True
 
         except Exception as e:
-            # Если не удалось подключиться к боту, выводим в консоль
             self.original_stdout.write(f"[ConsoleLogger] init failed: {e}\n")
             return False
 
@@ -62,7 +62,7 @@ class ConsoleToTelegram:
         self._buffer.clear()
 
     def write(self, text):
-        # Всегда пишем в обычную консоль
+        # Пишем в обычную консоль
         self.original_stdout.write(text)
 
         if not self.initialized or not text.strip():
@@ -73,12 +73,11 @@ class ConsoleToTelegram:
             self._skipped += 1
             return
 
-        # Буферизация, если задержка активна
+        # Буферизация во время задержки
         if self._delay_active:
             self._buffer.append(text)
             return
 
-        # После задержки — сразу отправляем
         try:
             loop = asyncio.get_running_loop()
             loop.create_task(self._send(text))
@@ -91,17 +90,32 @@ class ConsoleToTelegram:
     async def _send(self, text: str):
         try:
             clean = text.rstrip()
-            if not clean:
+            if not clean or not self.bot:
                 return
 
-            # Разбиваем слишком длинные сообщения
-            if len(clean) > 4000:
-                parts = [clean[i:i + 4000] for i in range(0, len(clean), 4000)]
+            # Экранируем текст под MarkdownV2
+            safe_text = escape_markdown(clean, version=2)
+
+            MAX_LEN = 4000
+
+            if len(safe_text) > MAX_LEN:
+                parts = [
+                    safe_text[i:i + MAX_LEN]
+                    for i in range(0, len(safe_text), MAX_LEN)
+                ]
                 for part in parts:
-                    await self.bot.send_message(chat_id=TG_CHANNEL_ID, text=part)
+                    await self.bot.send_message(
+                        chat_id=TG_CHANNEL_ID,
+                        text=part,
+                        parse_mode="MarkdownV2"
+                    )
                     await asyncio.sleep(0.05)
             else:
-                await self.bot.send_message(chat_id=TG_CHANNEL_ID, text=clean)
+                await self.bot.send_message(
+                    chat_id=TG_CHANNEL_ID,
+                    text=safe_text,
+                    parse_mode="MarkdownV2"
+                )
 
         except Exception as e:
             self.original_stdout.write(f"[ConsoleLogger] send failed: {e}\n")
