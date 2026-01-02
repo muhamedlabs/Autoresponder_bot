@@ -1,7 +1,7 @@
 import sys
 import asyncio
+from html import escape
 from telegram import Bot
-from telegram.helpers import escape_markdown
 from BANNED_FILES.config import TG_CHANNEL_ID, telegram_bots, START_GIF
 
 
@@ -32,13 +32,13 @@ class ConsoleToTelegram:
                 chat_id=TG_CHANNEL_ID,
                 animation=START_GIF,
                 caption=(
-                    "🌌 **Console Activated!**\n\n"
+                    "🌌 <b>Console Activated!</b>\n\n"
                     "Дух отточен, как клинок. Сознание чисто, как вода в горном ручье после дождя. "
                     "Три первых шепота ветра пропущу — чтобы услышать истинный голос задачи за суетой.\n\n"
-                    "Канал связи **открыт**. Готов ловить импульсы из консоли в реальном потоке. "
-                    "Пусть **данные** струятся, словно молнии в грозовом небе самурайской решимости!"
+                    "Канал связи <b>открыт</b>. Готов ловить импульсы из консоли в реальном потоке. "
+                    "Пусть <b>данные</b> струятся, словно молнии в грозовом небе <b>самурайской</b> решимости!"
                 ),
-                parse_mode="Markdown"
+                parse_mode="HTML"
             )
 
             asyncio.create_task(self._delayed_flush())
@@ -93,8 +93,8 @@ class ConsoleToTelegram:
             if not clean or not self.bot:
                 return
 
-            # Экранируем текст под MarkdownV2
-            safe_text = escape_markdown(clean, version=2)
+            # Экранируем только опасные HTML символы (<, >, &)
+            safe_text = escape(clean)
 
             MAX_LEN = 4000
 
@@ -107,14 +107,14 @@ class ConsoleToTelegram:
                     await self.bot.send_message(
                         chat_id=TG_CHANNEL_ID,
                         text=part,
-                        parse_mode="MarkdownV2"
+                        parse_mode="HTML"
                     )
                     await asyncio.sleep(0.05)
             else:
                 await self.bot.send_message(
                     chat_id=TG_CHANNEL_ID,
                     text=safe_text,
-                    parse_mode="MarkdownV2"
+                    parse_mode="HTML"
                 )
 
         except Exception as e:
@@ -135,3 +135,20 @@ def get_console_capture() -> ConsoleToTelegram:
 async def setup_console_logger() -> bool:
     logger = get_console_capture()
     return await logger.init_bot()
+
+
+def tg_print(*args, bold=False, italic=False, code=False, **kwargs):
+    """
+    Печатает в консоль и отправляет в Telegram с форматированием.
+    """
+    text = " ".join(str(arg) for arg in args)
+    
+    # Применяем форматирование
+    if code:
+        text = f"<code>{text}</code>"
+    if italic:
+        text = f"<i>{text}</i>"
+    if bold:
+        text = f"<b>{text}</b>"
+    
+    print(text, **kwargs)
